@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <title>Aumento da renda em 2024</title>
+</head>
+<body>
+  <h2>Aumento da renda em 2024</h2>
+
+  <p>Insira o valor da renda atual:</p>
+  <input type="number" id="renda-atual" />
+
+  <button onclick="calcular()">Calcular</button>
+
+  <p id="resultado"></p>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+ <script>
+    function calcular() {
+      const rendaAtual = document.getElementById("renda-atual").value;
+
+      const aumento = 0.0694;
+      const valorAumento = rendaAtual * aumento;
+      const aumentoMensal = valorAumento;
+      const aumentoAnual = valorAumento * 12;
+
+      const resultado = {
+        "aumento mensal": aumentoMensal,
+        "aumento anual": aumentoAnual.toFixed(2),
+      };
+
+      const resultadoFormatado = Object.entries(resultado).map(([key, value]) => `
+        ${key}: ${value}€</br>
+      `).join("");
+
+      document.getElementById("resultado").innerHTML = resultadoFormatado;
+    }
+
+    document.getElementById("renda-atual").addEventListener("keydown", (event) => {
+      if (event.keyCode === 13) {
+        calcular();
+      }
+    });
+  </script>
+
+
+
+
+
+
+
+</body>
+</html>
