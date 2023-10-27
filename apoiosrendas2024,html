@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <title>Aumento da renda em 2024</title>
+  <style>
+    .bold {
+      font-weight: bold;
+    }
+    .larger-font {
+      font-size: 1.2em;
+    }
+    .even-larger-font {
+      font-size: 1.5em;
+    }
+    .smaller-font {
+      font-size: 0.8em;
+    }
+    .medium-font {
+      font-size: 0.9em;
+    }
+  </style>
+</head>
+<body>
+  <h2>Aumento da renda em 2024</h2>
+
+  <p>Insira o valor da sua renda atual</p>
+  <input type="number" id="renda-atual" />
+
+  <p>Insira o salário líquido do seu agregado</p>
+  <input type="number" id="rendimento-liquido" />
+
+  <button onclick="calcular()">Calcular</button>
+
+  <p id="resultado"></p>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script>
+    function calcular() {
+      const rendaAtual = parseFloat(document.getElementById("renda-atual").value);
+      const rendimentoLiquido = parseFloat(document.getElementById("rendimento-liquido").value);
+      
+      if (isNaN(rendaAtual) || isNaN(rendimentoLiquido)) {
+        document.getElementById("resultado").innerHTML = "Insira por favor ambos os valores (renda e salário)";
+        return;
+      }
+
+      const aumento = 0.0694;
+      const valorAumento = rendaAtual * aumento;
+      const novaRenda = rendaAtual + valorAumento;
+
+      // Cálculo do Apoio do Estado
+      let apoioAtualMensal = 0;
+      if (rendimentoLiquido * 14 <= 38632 && rendaAtual > rendimentoLiquido * 0.35) {
+        const diferenca = rendaAtual - (rendimentoLiquido * 0.35);
+        apoioAtualMensal = Math.min(diferenca, 200);
+      }
+
+      const apoioAtualAnual = apoioAtualMensal * 12;
+
+      // Cálculo do Apoio Adicional em 2024
+      let apoioAdicionalMensal2024 = 0;
+      let apoioAdicionalAnual2024 = 0;
+      if (apoioAtualMensal > 0 && aumento > 0.02) {
+        apoioAdicionalMensal2024 = rendaAtual * 0.0494;
+        apoioAdicionalAnual2024 = apoioAdicionalMensal2024 * 12;
+      }
+
+      // Cálculo do valor da renda em 2024 e 2023
+      const valorRenda2024 = novaRenda - apoioAtualMensal - apoioAdicionalMensal2024;
+      const valorRenda2023 = rendaAtual - apoioAtualMensal;
+
+      // Cálculo da diferença
+      const diferencaMensal = valorRenda2024 - valorRenda2023;
+      const diferencaAnual = diferencaMensal * 12;
+
+      // Cálculo do Apoio Total em 2024
+      const apoioMensalTotal2024 = apoioAtualMensal + apoioAdicionalMensal2024;
+      const apoioAnualTotal2024 = apoioAtualAnual + apoioAdicionalAnual2024;
+
+      const resultado = {
+        "nova renda": novaRenda.toFixed(2) + "€",
+        "aumento mensal": valorAumento.toFixed(2) + "€",
+        "aumento anual": (valorAumento * 12).toFixed(2) + "€",
+        "</br><span class='bold smaller-font'>APOIOS DO ESTADO</span>": "",
+        "apoio atual mensal do Estado": apoioAtualMensal.toFixed(2) + "€",
+        "apoio atual anual do Estado": apoioAtualAnual.toFixed(2) + "€",
+        "apoio adicional mensal do Estado em 2024": apoioAdicionalMensal2024.toFixed(2) + "€",
+        "apoio adicional anual do Estado em 2024": apoioAdicionalAnual2024.toFixed(2) + "€",
+        "</br><span class='even-larger-font' style='color:#FF5733'>RENDA EM 2024</span>": "<span class='bold even-larger-font' style='color:#FB2F03'>" + valorRenda2024.toFixed(2) + "€</span>",
+        "<i>renda em 2023</i>": "<i>" + valorRenda2023.toFixed(2) + "€</i>",
+        "<span class='medium-font'>DIFERENÇA MENSAL</span>": "<span class='bold'>" + diferencaMensal.toFixed(2) + "€</span>",
+        "<span class='medium-font'>DIFERENÇA ANUAL</span>": "<span class='bold'>" + diferencaAnual.toFixed(2) + "€</span>",
+        "</br>apoio mensal total do Estado em 2024": apoioMensalTotal2024.toFixed(2) + "€",
+        "apoio anual total do Estado em 2024": apoioAnualTotal2024.toFixed(2) + "€"
+      };
+
+      const resultadoFormatado = Object.entries(resultado).map(([key, value]) => `
+        ${key}: ${value}</br>
+      `).join("");
+
+      document.getElementById("resultado").innerHTML = resultadoFormatado;
+    }
+
+    function calcularComEnter(event) {
+      if (event.key === "Enter") {
+        calcular();
+      }
+    }
+
+    document.getElementById("renda-atual").addEventListener("keydown", calcularComEnter);
+    document.getElementById("rendimento-liquido").addEventListener("keydown", calcularComEnter);
+  </script>
+
+</body>
+</html>
