@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cálculo de Aumento de Renda</title>
+</head>
+<body>
+    <div style="font-family: helvetica; font-size:10px;text-transform:uppercase">Cálculo de Aumento de Renda</div>
+    <hr/></br></br>
+    <div style="font-family: georgia; font-size:16px;text-transform:uppercase"><label for="rendaAtual">Valor da sua renda atual</label></div>
+    <input type="number" id="rendaAtual" oninput="calcularRenda()" placeholder="Insira aqui o valor">
+    </br></br>
+    <div style="font-family: georgia; font-size:16px;text-transform:uppercase">Quanto vai aumentar a sua renda</div>
+    <input type="text" id="aumentoRenda" readonly>
+    </br></br>
+    <div style="font-family: georgia; font-size:16px;text-transform:uppercase">Valor da sua renda em 2025</div>
+    <input type="text" id="renda2025" readonly>
+    
+    <script>
+        function calcularRenda() {
+            // Obtém o valor inserido pelo usuário
+            let rendaAtual = parseFloat(document.getElementById("rendaAtual").value);
+            
+            // Calcula o aumento de 2,16%
+            let aumento = rendaAtual * 0.0216;
+            
+            // Calcula o valor da renda em 2025
+            let renda2025 = rendaAtual + aumento;
+            
+            // Atualiza os campos com os valores calculados
+            document.getElementById("aumentoRenda").value = aumento.toFixed(2);
+            document.getElementById("renda2025").value = renda2025.toFixed(2);
+        }
+    </script>
+</body>
+</html>
