@@ -16,6 +16,10 @@
     </br></br>
     <div style="font-family: georgia; font-size:16px;text-transform:uppercase">Valor da sua renda em 2025</div>
     <input type="text" id="renda2025" readonly>
+    </br></br></br>
+
+    <div style="font-weight:bold;font-family:georgia;size:20px;text-transform:uppercase">Gasto a mais ao fim de um ano</div>
+    <input type="text" id="gastoAnual" readonly>
     
     <script>
         function calcularRenda() {
@@ -28,9 +32,13 @@
             // Calcula o valor da renda em 2025
             let renda2025 = rendaAtual + aumento;
             
+            // Calcula o gasto a mais ao fim de um ano
+            let gastoAnual = aumento * 12;
+            
             // Atualiza os campos com os valores calculados
             document.getElementById("aumentoRenda").value = aumento.toFixed(2);
             document.getElementById("renda2025").value = renda2025.toFixed(2);
+            document.getElementById("gastoAnual").value = gastoAnual.toFixed(2);
         }
     </script>
 </body>
