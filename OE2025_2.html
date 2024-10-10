@@ -6,31 +6,23 @@
     <title>PDF Word Finder</title>
     <style>
         body {
-            font-family: 'Roboto', sans-serif; /* Fonte mais moderna */
+            font-family: Arial, sans-serif;
             margin: 20px;
-            background-color: #f8f9fa; /* Fundo suave */
-            color: #333; /* Cor do texto */
+            background-color: white; /* Fundo branco */
             line-height: 1.6; /* Melhora a legibilidade */
-        }
-        h1 {
-            font-size: 24px; /* Tamanho do título */
-            margin-bottom: 10px; /* Espaço abaixo do título */
         }
         #output {
             margin-top: 20px;
         }
         .highlight {
-            background-color: #4285F4; /* Cor do destaque */
-            color: white; /* Texto em branco no destaque */
-            padding: 0 5px; /* Espaçamento interno */
-            border-radius: 3px; /* Bordas arredondadas */
+            background-color: yellow;
         }
         .context {
             margin-left: 20px;
             color: gray;
         }
         #loading {
-            color: #EA4335; /* Cor vermelha */
+            color: red;
             margin-top: 20px;
             font-weight: bold; /* Negrito */
             margin-bottom: 20px; /* Espaço adicional */
@@ -38,46 +30,6 @@
         }
         .search-container {
             margin-bottom: 20px;
-        }
-        #wordInput {
-            width: calc(100% - 130px); /* Ocupa espaço responsivo */
-            padding: 10px; /* Espaçamento interno */
-            border: 1px solid #ccc; /* Borda leve */
-            border-radius: 5px; /* Bordas arredondadas */
-            font-size: 16px; /* Tamanho da fonte */
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra leve */
-        }
-        #searchButton {
-            background-color: #4285F4; /* Cor do botão */
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            cursor: pointer;
-            border-radius: 5px; /* Bordas arredondadas */
-            font-size: 16px; /* Tamanho da fonte do botão */
-            margin-left: 10px; /* Espaço entre input e botão */
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra leve */
-            transition: background-color 0.3s; /* Transição suave */
-        }
-        #searchButton:hover {
-            background-color: #357AE8; /* Efeito hover */
-        }
-        .result {
-            margin-bottom: 20px; /* Mais espaço entre resultados */
-            padding: 10px;
-            border: 1px solid #E0E0E0; /* Borda leve nos resultados */
-            border-radius: 5px; /* Bordas arredondadas nos resultados */
-            background-color: white; /* Fundo branco nos resultados */
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Sombra leve */
-            transition: transform 0.2s; /* Transição suave */
-        }
-        .result:hover {
-            transform: translateY(-2px); /* Efeito de elevação ao passar o mouse */
-        }
-        #resultMessage {
-            color: blue; /* Cor azul */
-            font-weight: bold; /* Negrito */
-            text-transform: lowercase; /* Texto em minúsculas */
         }
         .pagination {
             display: flex;
@@ -88,44 +40,57 @@
         .page-number {
             margin: 0 5px; /* Espaço entre os números de página */
             cursor: pointer;
-            color: #4285F4; /* Cor dos números */
         }
         .active {
-            font-weight: bold; /* Negrito para página ativa */
-            text-decoration: underline; /* Sublinhado para página ativa */
+            font-weight: bold;
         }
         .context-button {
             font-size: 10px; /* Botões de contexto menores */
             margin-left: 10px;
-            background-color: #f1f1f1; /* Cor do botão de contexto */
-            border: none;
-            border-radius: 5px; /* Bordas arredondadas */
-            padding: 5px 10px; /* Espaçamento interno */
-            cursor: pointer;
-            transition: background-color 0.3s; /* Transição suave */
         }
-        .context-button:hover {
-            background-color: #e1e1e1; /* Efeito hover no botão de contexto */
+        #searchButton {
+            background-color: #4285F4; /* Cor do botão no estilo Google */
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 5px; /* Bordas arredondadas */
+            font-size: 14px; /* Tamanho da fonte do botão */
+        }
+        #searchButton:hover {
+            background-color: #357AE8; /* Efeito hover */
+        }
+        .result {
+            margin-bottom: 20px; /* Mais espaço entre resultados */
+            padding: 10px;
+            border: 1px solid #E0E0E0; /* Borda leve nos resultados */
+            border-radius: 5px; /* Bordas arredondadas nos resultados */
+            background-color: #F9F9F9; /* Fundo claro nos resultados */
+        }
+        #resultMessage {
+            color: blue; /* Cor azul */
+            font-weight: bold; /* Negrito */
+            text-transform: lowercase; /* Texto em minúsculas */
         }
         @media (max-width: 600px) {
             body {
                 margin: 10px; /* Menos margem em dispositivos móveis */
             }
             #wordInput {
-                width: calc(100% - 70px); /* Ajusta o tamanho em dispositivos móveis */
+                width: 100%; /* Campo de pesquisa ocupa 100% da largura */
             }
         }
     </style>
 </head>
 <body>
-    <h1>OE 2025 | MOTOR DE BUSCA CNN PORTUGAL</h1>
+    <div style="font-size:15px; text-align: left;">OE 2025 | MOTOR DE BUSCA CNN PORTUGAL</div>
     <div style="font-size:8px; text-align: left;">pode ver <a href="https://gogapo.github.io/cnn/relatorio_OE.pdf" target="_blank">AQUI</a> o documento na íntegra</div>
     <br />
     <div class="search-container">
         <input type="text" id="wordInput" placeholder="escreva aqui" />
         <button id="searchButton">pesquisar</button>
     </div>
-    <div id="loading">A CARREGAR A INFORMAÇÃO, AGUARDE UM POUCO. COMECE A PESQUISAR SÓ DEPOIS DESTA MENSAGEM DESAPARECER</div>
+    <div id="loading">A CARREGAR A INFORMAÇÃO, AGUARDE UM POUCO. COMECE A PESQUISAR SÓ DEPOIS DE ESTA MENSAGEM DESAPARECER</div>
     <div id="resultMessage">pode começar a pesquisar</div>
     <div id="output"></div>
 
