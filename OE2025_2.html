@@ -9,6 +9,8 @@
         body {
             font-family: 'Roboto', Arial, sans-serif;
             margin: 20px;
+            background-color: #f5f5f5;
+            color: #333;
         }
         #output {
             margin-top: 20px;
@@ -25,8 +27,8 @@
             margin-top: 20px;
         }
         input[type="text"] {
-            width: 300px;
-            padding: 10px;
+            width: 400px;
+            padding: 12px;
             font-size: 18px;
             border-radius: 24px;
             border: 1px solid #ccc;
@@ -39,7 +41,7 @@
         }
 
         button {
-            padding: 10px 20px;
+            padding: 8px 16px;
             font-size: 16px;
             border-radius: 24px;
             background-color: #4285F4;
@@ -60,17 +62,83 @@
             color: #333;
         }
 
-        #pagination button {
-            margin: 5px;
+        .context-button {
+            font-size: 12px;
+            padding: 4px 8px;
+            margin-left: 10px;
+            border-radius: 16px;
+            background-color: #f1f1f1;
+            color: #4285F4;
+            border: 1px solid #ccc;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .context-button:hover {
+            background-color: #e0e0e0;
+        }
+
+        #pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        #pagination button,
+        #pagination span {
+            margin: 0 5px;
             font-size: 14px;
             padding: 8px 16px;
+        }
+
+        #pagination .page-number {
+            background-color: #f1f1f1;
+            cursor: pointer;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #pagination .page-number.active {
+            background-color: #4285F4;
+            color: white;
+        }
+
+        .header {
+            font-size: 24px;
+            font-weight: 500;
+            color: #4285F4;
+            text-align: center;
+        }
+
+        .subheader {
+            font-size: 14px;
+            text-align: center;
+            color: #555;
+            margin-bottom: 30px;
+        }
+
+        .subheader a {
+            color: #4285F4;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .subheader a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
-    <div style="font-size:15px">OE 2025 | MOTOR DE BUSCA CNN PORTUGAL</div>
-    <div style="font-size:8px">pode ver <a href="https://gogapo.github.io/cnn/relatorio_OE.pdf" target="_blank">AQUI</a> o documento na íntegra</div>
-    </br></br>
+    <div class="header">OE 2025 | MOTOR DE BUSCA CNN PORTUGAL</div>
+    <div class="subheader">
+        pode ver <a href="https://gogapo.github.io/cnn/relatorio_OE.pdf" target="_blank">AQUI</a> o documento na íntegra
+    </div>
+
     <input type="text" id="wordInput" placeholder="escreva aqui" />
     <button id="searchButton">pesquisar</button>
     <div id="loading">A carregar a informação, aguarde um pouco. Comece a pesquisar só depois de esta mensagem desaparecer</div>
@@ -179,7 +247,7 @@
 
             paginatedResults.forEach((result) => {
                 const sentenceHtml = result.sentence.replace(new RegExp(`(${word})`, 'gi'), '<span class="highlight">$1</span>');
-                const contextButton = `<button onclick="showContext('${result.sentence}')">mostrar contexto (se disponível)</button>`;
+                const contextButton = `<button class="context-button" onclick="showContext('${result.sentence}')">mostrar contexto</button>`;
                 output.innerHTML += `<p>${sentenceHtml} (<i>Página ${result.page} do OE 2025</i>) ${contextButton}</p>`;
             });
 
@@ -187,42 +255,48 @@
             output.appendChild(paginationButtons);
         }
 
-        // Create pagination buttons
+        // Create pagination buttons with page numbers
         function createPaginationButtons(totalResults) {
             const totalPages = Math.ceil(totalResults / resultsPerPage);
-            const paginationDiv = document.createElement('div');
-            paginationDiv.id = 'pagination';
+            const pagination = document.createElement('div');
+            pagination.id = 'pagination';
 
             if (currentPage > 1) {
                 const prevButton = document.createElement('button');
                 prevButton.textContent = 'Anterior';
-                prevButton.onclick = function () {
+                prevButton.addEventListener('click', () => {
                     currentPage--;
                     performSearch();
-                };
-                paginationDiv.appendChild(prevButton);
+                });
+                pagination.appendChild(prevButton);
+            }
+
+            for (let i = 1; i <= totalPages; i++) {
+                const pageNumber = document.createElement('span');
+                pageNumber.textContent = i;
+                pageNumber.className = 'page-number' + (i === currentPage ? ' active' : '');
+                pageNumber.addEventListener('click', () => {
+                    currentPage = i;
+                    performSearch();
+                });
+                pagination.appendChild(pageNumber);
             }
 
             if (currentPage < totalPages) {
                 const nextButton = document.createElement('button');
                 nextButton.textContent = 'Próximo';
-                nextButton.onclick = function () {
+                nextButton.addEventListener('click', () => {
                     currentPage++;
                     performSearch();
-                };
-                paginationDiv.appendChild(nextButton);
+                });
+                pagination.appendChild(nextButton);
             }
 
-            return paginationDiv;
+            return pagination;
         }
 
-        // Show context around the sentence where the word was found
         function showContext(sentence) {
-            const sentences = pageSentences.flat(); // Flatten the array of sentences
-            const index = sentences.findIndex(s => s.trim() === sentence.trim()); // Find the exact match
-            const start = Math.max(0, index - 2); // Get two sentences before
-            const end = Math.min(sentences.length, index + 3); // Get two sentences after
-            alert('Contexto: ' + sentences.slice(start, end).join(' '));
+            alert('Contexto completo: ' + sentence);
         }
     </script>
 </body>
