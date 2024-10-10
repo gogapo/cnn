@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Word Finder</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            margin: 20px;
+        }
+        #output {
+            margin-top: 20px;
+        }
+        .highlight {
+            background-color: yellow;
+        }
+        .context {
+            margin-left: 20px;
+            color: gray;
+        }
+        #loading {
+            color: red;
+            margin-top: 20px;
+        }
+        input[type="text"] {
+            width: 300px;
+            padding: 10px;
+            font-size: 18px;
+            border-radius: 24px;
+            border: 1px solid #ccc;
+            outline: none;
+            transition: box-shadow 0.3s;
+        }
+
+        input[type="text"]:focus {
+            box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 24px;
+            background-color: #4285F4;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #357ae8;
+        }
+
+        #output p {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.5;
+            font-size: 16px;
+            color: #333;
+        }
+
+        #pagination button {
+            margin: 5px;
+            font-size: 14px;
+            padding: 8px 16px;
+        }
+    </style>
+</head>
+<body>
+    <div style="font-size:15px">OE 2025 | MOTOR DE BUSCA CNN PORTUGAL</div>
+    <div style="font-size:8px">pode ver <a href="https://gogapo.github.io/cnn/relatorio_OE.pdf" target="_blank">AQUI</a> o documento na íntegra</div>
+    </br></br>
+    <input type="text" id="wordInput" placeholder="escreva aqui" />
+    <button id="searchButton">pesquisar</button>
+    <div id="loading">A carregar a informação, aguarde um pouco. Comece a pesquisar só depois de esta mensagem desaparecer</div>
+    <div id="output"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+    <script>
+        let pdfDoc = null;
+        let pdfText = '';
+        let pageSentences = []; // Array to hold sentences for each page
+        let isLoading = true; // To track loading status
+        let hasSearched = false; // To track if a search has been performed
+        let currentPage = 1;  // Página inicial
+        const resultsPerPage = 10;  // Número máximo de resultados por página
+
+        // Load the PDF from the provided URL
+        const pdfUrl = "https://gogapo.github.io/cnn/relatorio_OE.pdf";
+        const loadingTask = pdfjsLib.getDocument(pdfUrl);
+
+        loadingTask.promise.then(function(pdf) {
+            pdfDoc = pdf;
+            return extractTextFromPdf(); // Ensure we wait for text extraction to complete
+        }).then(() => {
+            isLoading = false; // Set loading to false when done
+            document.getElementById('loading').textContent = 'PODE COMEÇAR A PESQUISAR'; // Update loading message
+        }).catch(function(error) {
+            console.error('Error loading PDF:', error);
+            document.getElementById('loading').textContent = 'Erro ao carregar o PDF.';
+            isLoading = false; // Set loading to false on error
+        });
+
+        // Extract text from each page of the PDF
+        async function extractTextFromPdf() {
+            for (let i = 1; i <= pdfDoc.numPages; i++) {
+                const page = await pdfDoc.getPage(i);
+                const content = await page.getTextContent();
+                const strings = content.items.map(item => item.str);
+                const pageText = strings.join(' '); // Join page text
+                const sentences = pageText.split(/(?<=[.?!])\s+/); // Split by sentence
+                pageSentences.push(sentences); // Store sentences for the page
+            }
+        }
+
+        // Search for the word in the extracted text
+        document.getElementById('searchButton').addEventListener('click', function() {
+            performSearch();
+        });
+
+        // Perform the search when Enter is pressed in the input field
+        document.getElementById('wordInput').addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();  // Prevent the default action for Enter key (form submission, etc.)
+                performSearch();
+            }
+        });
+
+        // Perform the search and display results
+        function performSearch() {
+            if (isLoading) {
+                alert('O PDF ainda está a carregar. Por favor, aguarde alguns segundos e tente novamente.');
+                return;
+            }
+
+            const word = document.getElementById('wordInput').value.trim();
+            if (word) {
+                const results = searchWordInText(word);
+                displayResults(results, word);
+                if (!hasSearched) {
+                    document.getElementById('loading').textContent = ''; // Clear loading message after first search
+                    hasSearched = true; // Mark that a search has been performed
+                }
+            } else {
+                document.getElementById('output').innerHTML = '<p>Por favor, insira uma palavra para pesquisar</p>';
+            }
+        }
+
+        // Find occurrences of the word in the text
+        function searchWordInText(word) {
+            const wordLower = word.toLowerCase();
+            const matches = [];
+
+            pageSentences.forEach((sentences, pageIndex) => {
+                sentences.forEach((sentence) => {
+                    if (sentence.toLowerCase().includes(wordLower)) {
+                        matches.push({ sentence, page: pageIndex + 1 }); // Store sentence with page number
+                    }
+                });
+            });
+
+            return matches;
+        }
+
+        // Display search results with pagination
+        function displayResults(results, word) {
+            const output = document.getElementById('output');
+            output.innerHTML = '';
+
+            if (results.length === 0) {
+                output.innerHTML = '<p>Nenhum resultado encontrado.</p>';
+                return;
+            }
+
+            const startIndex = (currentPage - 1) * resultsPerPage;
+            const endIndex = Math.min(startIndex + resultsPerPage, results.length);
+            const paginatedResults = results.slice(startIndex, endIndex);
+
+            paginatedResults.forEach((result) => {
+                const sentenceHtml = result.sentence.replace(new RegExp(`(${word})`, 'gi'), '<span class="highlight">$1</span>');
+                const contextButton = `<button onclick="showContext('${result.sentence}')">mostrar contexto (se disponível)</button>`;
+                output.innerHTML += `<p>${sentenceHtml} (<i>Página ${result.page} do OE 2025</i>) ${contextButton}</p>`;
+            });
+
+            const paginationButtons = createPaginationButtons(results.length);
+            output.appendChild(paginationButtons);
+        }
+
+        // Create pagination buttons
+        function createPaginationButtons(totalResults) {
+            const totalPages = Math.ceil(totalResults / resultsPerPage);
+            const paginationDiv = document.createElement('div');
+            paginationDiv.id = 'pagination';
+
+            if (currentPage > 1) {
+                const prevButton = document.createElement('button');
+                prevButton.textContent = 'Anterior';
+                prevButton.onclick = function () {
+                    currentPage--;
+                    performSearch();
+                };
+                paginationDiv.appendChild(prevButton);
+            }
+
+            if (currentPage < totalPages) {
+                const nextButton = document.createElement('button');
+                nextButton.textContent = 'Próximo';
+                nextButton.onclick = function () {
+                    currentPage++;
+                    performSearch();
+                };
+                paginationDiv.appendChild(nextButton);
+            }
+
+            return paginationDiv;
+        }
+
+        // Show context around the sentence where the word was found
+        function showContext(sentence) {
+            const sentences = pageSentences.flat(); // Flatten the array of sentences
+            const index = sentences.findIndex(s => s.trim() === sentence.trim()); // Find the exact match
+            const start = Math.max(0, index - 2); // Get two sentences before
+            const end = Math.min(sentences.length, index + 3); // Get two sentences after
+            alert('Contexto: ' + sentences.slice(start, end).join(' '));
+        }
+    </script>
+</body>
+</html>
