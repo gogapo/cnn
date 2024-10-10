@@ -193,58 +193,11 @@
                 return;
             }
 
-            const totalPages = Math.ceil(results.length / resultsPerPage);
-            const start = (currentPage - 1) * resultsPerPage;
-            const end = Math.min(start + resultsPerPage, results.length);
-            const paginatedResults = results.slice(start, end);
-
-            paginatedResults.forEach((result) => {
+            results.forEach((result) => {
                 const sentenceHtml = result.sentence.replace(new RegExp(`(${word})`, 'gi'), '<span class="highlight">$1</span>');
                 const contextButton = `<button class="context-button" onclick="showContext('${result.sentence}')">mostrar contexto</button>`;
                 output.innerHTML += `<div class="result">${sentenceHtml} (<i>Página ${result.page} do OE 2025</i>) ${contextButton}</div>`;
             });
-
-            const pagination = createPagination(totalPages);
-            output.appendChild(pagination);
-        }
-
-        // Create pagination elements
-        function createPagination(totalPages) {
-            const pagination = document.createElement('div');
-            pagination.className = 'pagination';
-
-            if (currentPage > 1) {
-                const prevButton = document.createElement('button');
-                prevButton.textContent = 'Anterior';
-                prevButton.addEventListener('click', () => {
-                    currentPage--;
-                    performSearch();
-                });
-                pagination.appendChild(prevButton);
-            }
-
-            for (let i = 1; i <= totalPages; i++) {
-                const pageNumber = document.createElement('span');
-                pageNumber.className = `page-number ${currentPage === i ? 'active' : ''}`;
-                pageNumber.textContent = i;
-                pageNumber.addEventListener('click', () => {
-                    currentPage = i;
-                    performSearch();
-                });
-                pagination.appendChild(pageNumber);
-            }
-
-            if (currentPage < totalPages) {
-                const nextButton = document.createElement('button');
-                nextButton.textContent = 'Próximo';
-                nextButton.addEventListener('click', () => {
-                    currentPage++;
-                    performSearch();
-                });
-                pagination.appendChild(nextButton);
-            }
-
-            return pagination;
         }
 
         // Show context around the found word
