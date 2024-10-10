@@ -4,226 +4,121 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PDF Word Finder</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Roboto', Arial, sans-serif;
+            font-family: Arial, sans-serif;
             margin: 20px;
-            background-color: white;
-            color: #333;
+            background-color: white; /* Fundo branco */
         }
-
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-
         #output {
             margin-top: 20px;
         }
-
         .highlight {
             background-color: yellow;
         }
-
-        .context-button {
-            font-size: 12px;
-            padding: 4px 8px;
-            margin-left: 10px;
-            border-radius: 16px;
-            background-color: #f1f1f1;
-            color: #4285F4;
-            border: 1px solid #ccc;
-            cursor: pointer;
-            transition: background-color 0.3s;
+        .context {
+            margin-left: 20px;
+            color: gray;
         }
-
-        .context-button:hover {
-            background-color: #e0e0e0;
+        #loading {
+            color: red;
+            margin-top: 20px;
+            font-weight: bold; /* Negrito */
+            margin-bottom: 20px; /* Espaço adicional */
         }
-
-        input[type="text"] {
-            width: 100%;
-            max-width: 400px;
-            padding: 12px;
-            font-size: 18px;
-            border-radius: 24px;
-            border: 1px solid #ccc;
-            outline: none;
-            transition: box-shadow 0.3s;
+        .search-container {
+            margin-bottom: 20px;
         }
-
-        input[type="text"]:focus {
-            box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
-        }
-
-        button {
-            padding: 8px 16px;
-            font-size: 16px;
-            border-radius: 24px;
-            background-color: #4285F4;
-            color: white;
-            border: none;
-            cursor: pointer;
-            transition: background-color 0.3s;
+        .pagination {
+            display: flex;
+            align-items: center;
+            justify-content: left; /* Alinhamento à esquerda */
             margin-top: 10px;
         }
-
-        button:hover {
-            background-color: #357ae8;
-        }
-
-        #output p {
-            line-height: 1.5;
-            font-size: 16px;
-            color: #333;
-            margin-bottom: 30px;
-        }
-
-        #pagination {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-top: 20px;
-        }
-
-        #pagination button,
-        #pagination span {
-            margin: 0 5px;
-            font-size: 14px;
-            padding: 8px 16px;
-        }
-
-        #pagination .page-number {
-            background-color: #f1f1f1;
+        .page-number {
+            margin: 0 5px; /* Espaço entre os números de página */
             cursor: pointer;
-            border-radius: 50%;
-            width: 36px;
-            height: 36px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
         }
-
-        #pagination .page-number.active {
-            background-color: #4285F4;
-            color: white;
-        }
-
-        .header {
-            font-size: 24px;
-            font-weight: 500;
-            color: #4285F4;
-            text-align: left;
-        }
-
-        .subheader {
-            font-size: 14px;
-            text-align: left;
-            color: #555;
-            margin-bottom: 30px;
-        }
-
-        .subheader a {
-            color: #4285F4;
-            text-decoration: none;
+        .active {
             font-weight: bold;
         }
-
-        .subheader a:hover {
-            text-decoration: underline;
+        .context-button {
+            font-size: 10px; /* Botões de contexto menores */
+            margin-left: 10px;
         }
-
-        @media (max-width: 768px) {
-            input[type="text"] {
-                width: 100%;
-            }
-
-            button {
-                width: 100%;
-            }
-        }
-
-        @media (max-width: 480px) {
+        @media (max-width: 600px) {
             body {
-                margin: 10px;
+                margin: 10px; /* Menos margem em dispositivos móveis */
             }
-
-            .header {
-                font-size: 20px;
-            }
-
-            .subheader {
-                font-size: 12px;
-            }
-
-            #pagination button, #pagination span {
-                font-size: 12px;
-                padding: 6px 12px;
+            #wordInput {
+                width: 100%; /* Campo de pesquisa ocupa 100% da largura */
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">OE 2025 | MOTOR DE BUSCA CNN PORTUGAL</div>
-        <div class="subheader">
-            pode ver <a href="https://gogapo.github.io/cnn/relatorio_OE.pdf" target="_blank">AQUI</a> o documento na íntegra
-        </div>
-
+    <div style="font-size:15px; text-align: left;">OE 2025 | MOTOR DE BUSCA CNN PORTUGAL</div>
+    <div style="font-size:8px; text-align: left;">pode ver <a href="https://gogapo.github.io/cnn/relatorio_OE.pdf" target="_blank">AQUI</a> o documento na íntegra</div>
+    <br />
+    <div class="search-container">
         <input type="text" id="wordInput" placeholder="escreva aqui" />
         <button id="searchButton">pesquisar</button>
-        <div id="loading">!!!! A carregar a informação, aguarde um pouco. Comece a pesquisar só depois de esta mensagem desaparecer</div>
-        <div id="output"></div>
-        <div id="pagination"></div>
     </div>
+    <div id="loading">A carregar a informação, aguarde um pouco. Comece a pesquisar só depois de esta mensagem desaparecer</div>
+    <div id="output"></div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
     <script>
         let pdfDoc = null;
-        let pageSentences = [];
-        let isLoading = true;
-        let hasSearched = false;
-        let currentPage = 1;
-        const resultsPerPage = 10;
+        let pdfText = '';
+        let pageSentences = []; // Array to hold sentences for each page
+        let isLoading = true; // To track loading status
+        let hasSearched = false; // To track if a search has been performed
+        let currentPage = 1; // Track current page of results
+        const resultsPerPage = 10; // Set the number of results per page
 
+        // Load the PDF from the provided URL
         const pdfUrl = "https://gogapo.github.io/cnn/relatorio_OE.pdf";
         const loadingTask = pdfjsLib.getDocument(pdfUrl);
 
         loadingTask.promise.then(function(pdf) {
             pdfDoc = pdf;
-            return extractTextFromPdf();
+            return extractTextFromPdf(); // Ensure we wait for text extraction to complete
         }).then(() => {
-            isLoading = false;
-            document.getElementById('loading').textContent = 'PODE COMEÇAR A PESQUISAR';
+            isLoading = false; // Set loading to false when done
+            document.getElementById('loading').textContent = 'PODE COMEÇAR A PESQUISAR'; // Update loading message
         }).catch(function(error) {
             console.error('Error loading PDF:', error);
             document.getElementById('loading').textContent = 'Erro ao carregar o PDF.';
-            isLoading = false;
+            isLoading = false; // Set loading to false on error
         });
 
+        // Extract text from each page of the PDF
         async function extractTextFromPdf() {
             for (let i = 1; i <= pdfDoc.numPages; i++) {
                 const page = await pdfDoc.getPage(i);
                 const content = await page.getTextContent();
                 const strings = content.items.map(item => item.str);
-                const pageText = strings.join(' ');
-                const sentences = pageText.split(/(?<=[.?!])\s+/);
-                pageSentences.push(sentences);
+                const pageText = strings.join(' '); // Join page text
+                const sentences = pageText.split(/(?<=[.?!])\s+/); // Split by sentence
+                pageSentences.push(sentences); // Store sentences for the page
             }
         }
 
+        // Search for the word in the extracted text
         document.getElementById('searchButton').addEventListener('click', function() {
             performSearch();
         });
 
+        // Perform the search when Enter is pressed in the input field
         document.getElementById('wordInput').addEventListener('keydown', function(event) {
             if (event.key === 'Enter') {
-                event.preventDefault();
+                event.preventDefault();  // Prevent the default action for Enter key (form submission, etc.)
                 performSearch();
             }
         });
 
+        // Perform the search and display results
         function performSearch() {
             if (isLoading) {
                 alert('O PDF ainda está a carregar. Por favor, aguarde alguns segundos e tente novamente.');
@@ -235,14 +130,17 @@
                 const results = searchWordInText(word);
                 displayResults(results, word);
                 if (!hasSearched) {
-                    document.getElementById('loading').textContent = '';
-                    hasSearched = true;
+                    document.getElementById('loading').textContent = ''; // Clear loading message after first search
+                    hasSearched = true; // Mark that a search has been performed
                 }
             } else {
                 document.getElementById('output').innerHTML = '<p>Por favor, insira uma palavra para pesquisar</p>';
             }
+            // Scroll to top of the page
+            window.scrollTo(0, 0);
         }
 
+        // Find occurrences of the word in the text
         function searchWordInText(word) {
             const wordLower = word.toLowerCase();
             const matches = [];
@@ -250,7 +148,7 @@
             pageSentences.forEach((sentences, pageIndex) => {
                 sentences.forEach((sentence) => {
                     if (sentence.toLowerCase().includes(wordLower)) {
-                        matches.push({ sentence, page: pageIndex + 1 });
+                        matches.push({ sentence, page: pageIndex + 1 }); // Store sentence with page number
                     }
                 });
             });
@@ -258,6 +156,7 @@
             return matches;
         }
 
+        // Display search results with the option to view the context
         function displayResults(results, word) {
             const output = document.getElementById('output');
             output.innerHTML = '';
@@ -267,27 +166,25 @@
                 return;
             }
 
-            const startIndex = (currentPage - 1) * resultsPerPage;
-            const endIndex = Math.min(startIndex + resultsPerPage, results.length);
-            const paginatedResults = results.slice(startIndex, endIndex);
+            const totalPages = Math.ceil(results.length / resultsPerPage);
+            const start = (currentPage - 1) * resultsPerPage;
+            const end = Math.min(start + resultsPerPage, results.length);
+            const paginatedResults = results.slice(start, end);
 
             paginatedResults.forEach((result) => {
                 const sentenceHtml = result.sentence.replace(new RegExp(`(${word})`, 'gi'), '<span class="highlight">$1</span>');
                 const contextButton = `<button class="context-button" onclick="showContext('${result.sentence}')">mostrar contexto</button>`;
-                output.innerHTML += `<p>${sentenceHtml} (<i>Página ${result.page} do OE 2025</i>) ${contextButton}</p>`;
+                output.innerHTML += `<p style="margin-bottom: 10px;">${sentenceHtml} (<i>Página ${result.page} do OE 2025</i>) ${contextButton}</p>`;
             });
 
-            const paginationButtons = createPaginationButtons(results.length);
-            const paginationDiv = document.getElementById('pagination');
-            paginationDiv.innerHTML = '';
-            paginationDiv.appendChild(paginationButtons);
-
-            window.scrollTo(0, 0);
+            const pagination = createPagination(totalPages);
+            output.appendChild(pagination);
         }
 
-        function createPaginationButtons(totalResults) {
-            const totalPages = Math.ceil(totalResults / resultsPerPage);
+        // Create pagination elements
+        function createPagination(totalPages) {
             const pagination = document.createElement('div');
+            pagination.className = 'pagination';
 
             if (currentPage > 1) {
                 const prevButton = document.createElement('button');
