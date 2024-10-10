@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Word Finder</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        #output {
+            margin-top: 20px;
+        }
+        .highlight {
+            background-color: yellow;
+        }
+        .context {
+            margin-left: 20px;
+            color: gray;
+        }
+    </style>
+</head>
+<body>
+    <h1>Find Word in PDF</h1>
+    <input type="text" id="wordInput" placeholder="Enter a word to search" />
+    <button id="searchButton">Search</button>
+    <div id="output"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+    <script>
+        let pdfDoc = null;
+        let pdfText = '';
+
+        // Load the PDF from the provided Google Drive URL
+        const pdfUrl = "https://drive.google.com/uc?id=1QJsYw31drHNX-t_1y_DB7Hpq3CNGBBC7";
+        const loadingTask = pdfjsLib.getDocument(pdfUrl);
+
+        loadingTask.promise.then(function(pdf) {
+            pdfDoc = pdf;
+            extractTextFromPdf();
+        }).catch(function(error) {
+            console.error('Error loading PDF:', error);
+        });
+
+        // Extract text from each page of the PDF
+        async function extractTextFromPdf() {
+            let text = '';
+            for (let i = 1; i <= pdfDoc.numPages; i++) {
+                const page = await pdfDoc.getPage(i);
+                const content = await page.getTextContent();
+                const strings = content.items.map(item => item.str);
+                text += strings.join(' ') + '\n';  // Add newline for readability between pages
+            }
+            pdfText = text;
+        }
+
+        // Search for the word in the extracted text
+        document.getElementById('searchButton').addEventListener('click', function() {
+            performSearch();
+        });
+
+        // Perform the search when Enter is pressed in the input field
+        document.getElementById('wordInput').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();  // Prevent the default action for Enter key (form submission, etc.)
+                performSearch();
+            }
+        });
+
+        // Perform the search and display results
+        function performSearch() {
+            const word = document.getElementById('wordInput').value.trim();
+            if (word) {
+                const results = searchWordInText(pdfText, word);
+                displayResults(results, word);
+            }
+        }
+
+        // Find occurrences of the word in the text
+        function searchWordInText(text, word) {
+            const wordLower = word.toLowerCase();
+            const sentences = text.split(/(?<=[.?!])\s+/); // Split by sentence
+            const matches = [];
+
+            sentences.forEach((sentence, index) => {
+                if (sentence.toLowerCase().includes(wordLower)) {
+                    matches.push({ sentence, index });
+                }
+            });
+
+            return matches;
+        }
+
+        // Display search results with the option to view the context
+        function displayResults(results, word) {
+            const output = document.getElementById('output');
+            output.innerHTML = '';
+
+            if (results.length === 0) {
+                output.innerHTML = '<p>No matches found.</p>';
+                return;
+            }
+
+            results.forEach((result, i) => {
+                const sentenceHtml = result.sentence.replace(new RegExp(`(${word})`, 'gi'), '<span class="highlight">$1</span>');
+                const contextButton = `<button onclick="showContext(${result.index})">Show Context</button>`;
+                output.innerHTML += `<p>${sentenceHtml} ${contextButton}</p>`;
+            });
+        }
+
+        // Show context around the sentence where the word was found
+        function showContext(index) {
+            const sentences = pdfText.split(/(?<=[.?!])\s+/);
+            const context = sentences.slice(Math.max(0, index - 2), Math.min(sentences.length, index + 3)).join(' ');
+            alert('Context: ' + context);
+        }
+    </script>
+</body>
+</html>
