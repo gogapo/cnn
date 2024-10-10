@@ -26,10 +26,10 @@
     </style>
 </head>
 <body>
-    <h1>Find Word in PDF</h1>
-    <input type="text" id="wordInput" placeholder="Enter a word to search" />
+    <h4>OE 20025 | MOTOR DE BUSCA CNN PORTUGAL</h4>
+    <input type="text" id="wordInput" placeholder="pesquise aqui" />
     <button id="searchButton">Search</button>
-    <div id="loading">Carregando o PDF... Por favor, aguarde.</div>
+    <div id="loading">PDF a carregar. Aguarde um pouco antes de começar a pesquisar</div>
     <div id="output"></div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
@@ -37,6 +37,7 @@
         let pdfDoc = null;
         let pdfText = '';
         let isLoading = true; // To track loading status
+        let hasSearched = false; // To track if a search has been performed
 
         // Load the PDF from the provided URL
         const pdfUrl = "https://gogapo.github.io/cnn/relatorio_OE.pdf";
@@ -45,8 +46,7 @@
         loadingTask.promise.then(function(pdf) {
             pdfDoc = pdf;
             extractTextFromPdf();
-            document.getElementById('loading').textContent = ''; // Clear loading message when done
-            isLoading = false; // Set loading to false when done
+            document.getElementById('loading').textContent = 'pode começar a pesquisar'; // Update loading message
         }).catch(function(error) {
             console.error('Error loading PDF:', error);
             document.getElementById('loading').textContent = 'Erro ao carregar o PDF.';
@@ -63,6 +63,7 @@
                 text += strings.join(' ') + '\n';  // Add newline for readability between pages
             }
             pdfText = text;
+            isLoading = false; // Set loading to false when done
         }
 
         // Search for the word in the extracted text
@@ -89,8 +90,12 @@
             if (word) {
                 const results = searchWordInText(pdfText, word);
                 displayResults(results, word);
+                if (!hasSearched) {
+                    document.getElementById('loading').textContent = ''; // Clear loading message after first search
+                    hasSearched = true; // Mark that a search has been performed
+                }
             } else {
-                document.getElementById('output').innerHTML = '<p>Por favor, insira uma palavra para buscar.</p>';
+                document.getElementById('output').innerHTML = '<p>Por favor, insira uma palavra para pesquisar</p>';
             }
         }
 
@@ -100,9 +105,9 @@
             const sentences = text.split(/(?<=[.?!])\s+/); // Split by sentence
             const matches = [];
 
-            sentences.forEach((sentence, index) => {
+            sentences.forEach((sentence) => {
                 if (sentence.toLowerCase().includes(wordLower)) {
-                    matches.push({ sentence, page: Math.floor(index / (text.length / pdfDoc.numPages)) + 1 }); // Calculate page number
+                    matches.push({ sentence }); // Store sentence without page number
                 }
             });
 
@@ -121,16 +126,14 @@
 
             results.forEach((result) => {
                 const sentenceHtml = result.sentence.replace(new RegExp(`(${word})`, 'gi'), '<span class="highlight">$1</span>');
-                const contextButton = `<button onclick="showContext(${result.page})">Show Context</button>`;
-                output.innerHTML += `<p>${sentenceHtml} (<i>Página ${result.page}</i>) ${contextButton}</p>`;
+                const contextButton = `<button onclick="showContext()">Show Context</button>`;
+                output.innerHTML += `<p>${sentenceHtml} ${contextButton}</p>`;
             });
         }
 
         // Show context around the sentence where the word was found
-        function showContext(page) {
-            const sentences = pdfText.split(/(?<=[.?!])\s+/);
-            const context = sentences.slice(Math.max(0, page - 2), Math.min(sentences.length, page + 3)).join(' ');
-            alert('Contexto: ' + context);
+        function showContext() {
+            alert('Contexto: Função não implementada.');
         }
     </script>
 </body>
