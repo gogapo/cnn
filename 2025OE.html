@@ -23,7 +23,6 @@
             color: red;
             margin-top: 20px;
         }
-         
     </style>
 </head>
 <body>
@@ -39,6 +38,7 @@
     <script>
         let pdfDoc = null;
         let pdfText = '';
+        let pageSentences = []; // Array to hold sentences for each page
         let isLoading = true; // To track loading status
         let hasSearched = false; // To track if a search has been performed
 
@@ -60,14 +60,14 @@
 
         // Extract text from each page of the PDF
         async function extractTextFromPdf() {
-            let text = '';
             for (let i = 1; i <= pdfDoc.numPages; i++) {
                 const page = await pdfDoc.getPage(i);
                 const content = await page.getTextContent();
                 const strings = content.items.map(item => item.str);
-                text += strings.join(' ') + '\n';  // Add newline for readability between pages
+                const pageText = strings.join(' '); // Join page text
+                const sentences = pageText.split(/(?<=[.?!])\s+/); // Split by sentence
+                pageSentences.push(sentences); // Store sentences for the page
             }
-            pdfText = text; // Store extracted text
         }
 
         // Search for the word in the extracted text
@@ -92,7 +92,7 @@
 
             const word = document.getElementById('wordInput').value.trim();
             if (word) {
-                const results = searchWordInText(pdfText, word);
+                const results = searchWordInText(word);
                 displayResults(results, word);
                 if (!hasSearched) {
                     document.getElementById('loading').textContent = ''; // Clear loading message after first search
@@ -104,15 +104,16 @@
         }
 
         // Find occurrences of the word in the text
-        function searchWordInText(text, word) {
+        function searchWordInText(word) {
             const wordLower = word.toLowerCase();
-            const sentences = text.split(/(?<=[.?!])\s+/); // Split by sentence
             const matches = [];
 
-            sentences.forEach((sentence) => {
-                if (sentence.toLowerCase().includes(wordLower)) {
-                    matches.push({ sentence }); // Store sentence without page number
-                }
+            pageSentences.forEach((sentences, pageIndex) => {
+                sentences.forEach((sentence) => {
+                    if (sentence.toLowerCase().includes(wordLower)) {
+                        matches.push({ sentence, page: pageIndex + 1 }); // Store sentence with page number
+                    }
+                });
             });
 
             return matches;
@@ -131,13 +132,13 @@
             results.forEach((result) => {
                 const sentenceHtml = result.sentence.replace(new RegExp(`(${word})`, 'gi'), '<span class="highlight">$1</span>');
                 const contextButton = `<button onclick="showContext('${result.sentence}')">mostrar contexto (se disponível)</button>`;
-                output.innerHTML += `<p>${sentenceHtml} ${contextButton}</p>`;
+                output.innerHTML += `<p>${sentenceHtml} (<i>Página ${result.page} do OE 2025</i>) ${contextButton}</p>`;
             });
         }
 
         // Show context around the sentence where the word was found
         function showContext(sentence) {
-            const sentences = pdfText.split(/(?<=[.?!])\s+/);
+            const sentences = pageSentences.flat(); // Flatten the array of sentences
             const index = sentences.findIndex(s => s.trim() === sentence.trim()); // Find the exact match
             const start = Math.max(0, index - 2); // Get two sentences before
             const end = Math.min(sentences.length, index + 3); // Get two sentences after
