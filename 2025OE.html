@@ -19,28 +19,38 @@
             margin-left: 20px;
             color: gray;
         }
+        #loading {
+            color: blue;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
     <h1>Find Word in PDF</h1>
     <input type="text" id="wordInput" placeholder="Enter a word to search" />
     <button id="searchButton">Search</button>
+    <div id="loading">Carregando o PDF... Por favor, aguarde.</div>
     <div id="output"></div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
     <script>
         let pdfDoc = null;
         let pdfText = '';
+        let isLoading = true; // To track loading status
 
-        // Load the PDF from the provided Google Drive URL
+        // Load the PDF from the provided URL
         const pdfUrl = "https://gogapo.github.io/cnn/relatorio_OE.pdf";
         const loadingTask = pdfjsLib.getDocument(pdfUrl);
 
         loadingTask.promise.then(function(pdf) {
             pdfDoc = pdf;
             extractTextFromPdf();
+            document.getElementById('loading').textContent = ''; // Clear loading message when done
+            isLoading = false; // Set loading to false when done
         }).catch(function(error) {
             console.error('Error loading PDF:', error);
+            document.getElementById('loading').textContent = 'Erro ao carregar o PDF.';
+            isLoading = false; // Set loading to false on error
         });
 
         // Extract text from each page of the PDF
@@ -61,7 +71,7 @@
         });
 
         // Perform the search when Enter is pressed in the input field
-        document.getElementById('wordInput').addEventListener('keypress', function(event) {
+        document.getElementById('wordInput').addEventListener('keydown', function(event) {
             if (event.key === 'Enter') {
                 event.preventDefault();  // Prevent the default action for Enter key (form submission, etc.)
                 performSearch();
@@ -70,10 +80,17 @@
 
         // Perform the search and display results
         function performSearch() {
+            if (isLoading) {
+                alert('O PDF ainda está a carregar. Por favor, aguarde alguns segundos e tente novamente.');
+                return;
+            }
+
             const word = document.getElementById('wordInput').value.trim();
             if (word) {
                 const results = searchWordInText(pdfText, word);
                 displayResults(results, word);
+            } else {
+                document.getElementById('output').innerHTML = '<p>Por favor, insira uma palavra para buscar.</p>';
             }
         }
 
@@ -85,7 +102,7 @@
 
             sentences.forEach((sentence, index) => {
                 if (sentence.toLowerCase().includes(wordLower)) {
-                    matches.push({ sentence, index });
+                    matches.push({ sentence, page: Math.floor(index / (text.length / pdfDoc.numPages)) + 1 }); // Calculate page number
                 }
             });
 
@@ -98,22 +115,22 @@
             output.innerHTML = '';
 
             if (results.length === 0) {
-                output.innerHTML = '<p>No matches found.</p>';
+                output.innerHTML = '<p>Nenhum resultado encontrado.</p>';
                 return;
             }
 
-            results.forEach((result, i) => {
+            results.forEach((result) => {
                 const sentenceHtml = result.sentence.replace(new RegExp(`(${word})`, 'gi'), '<span class="highlight">$1</span>');
-                const contextButton = `<button onclick="showContext(${result.index})">Show Context</button>`;
-                output.innerHTML += `<p>${sentenceHtml} ${contextButton}</p>`;
+                const contextButton = `<button onclick="showContext(${result.page})">Show Context</button>`;
+                output.innerHTML += `<p>${sentenceHtml} (<i>Página ${result.page}</i>) ${contextButton}</p>`;
             });
         }
 
         // Show context around the sentence where the word was found
-        function showContext(index) {
+        function showContext(page) {
             const sentences = pdfText.split(/(?<=[.?!])\s+/);
-            const context = sentences.slice(Math.max(0, index - 2), Math.min(sentences.length, index + 3)).join(' ');
-            alert('Context: ' + context);
+            const context = sentences.slice(Math.max(0, page - 2), Math.min(sentences.length, page + 3)).join(' ');
+            alert('Contexto: ' + context);
         }
     </script>
 </body>
