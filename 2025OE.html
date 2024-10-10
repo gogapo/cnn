@@ -29,7 +29,7 @@
     <h4>OE 2025 | MOTOR DE BUSCA CNN PORTUGAL</h4>
     <input type="text" id="wordInput" placeholder="pesquise aqui" />
     <button id="searchButton">Search</button>
-    <div id="loading">PDF a carregar. Aguarde um pouco antes de começar a pesquisar.</div>
+    <div id="loading">PDF a carregar. Comece a pesquisar só depois de esta mensagem desaparecer</div>
     <div id="output"></div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
@@ -46,7 +46,7 @@
         loadingTask.promise.then(function(pdf) {
             pdfDoc = pdf;
             extractTextFromPdf();
-            document.getElementById('loading').textContent = 'Pode começar a pesquisar.'; // Update loading message
+            document.getElementById('loading').textContent = 'pode começar a pesquisar'; // Update loading message
         }).catch(function(error) {
             console.error('Error loading PDF:', error);
             document.getElementById('loading').textContent = 'Erro ao carregar o PDF.';
@@ -127,7 +127,7 @@
 
             results.forEach((result) => {
                 const sentenceHtml = result.sentence.replace(new RegExp(`(${word})`, 'gi'), '<span class="highlight">$1</span>');
-                const contextButton = `<button onclick="showContext('${result.sentence}')">Show Context</button>`;
+                const contextButton = `<button onclick="showContext('${result.sentence}')">mostrar contexto</button>`;
                 output.innerHTML += `<p>${sentenceHtml} (<i>Página ${result.page} do OE 2025</i>) ${contextButton}</p>`;
             });
         }
