@@ -9,6 +9,7 @@
             font-family: Arial, sans-serif;
             margin: 20px;
             background-color: white; /* Fundo branco */
+            line-height: 1.6; /* Melhora a legibilidade */
         }
         #output {
             margin-top: 20px;
@@ -25,6 +26,7 @@
             margin-top: 20px;
             font-weight: bold; /* Negrito */
             margin-bottom: 20px; /* Espaço adicional */
+            text-transform: uppercase; /* Texto em maiúsculas */
         }
         .search-container {
             margin-bottom: 20px;
@@ -46,6 +48,30 @@
             font-size: 10px; /* Botões de contexto menores */
             margin-left: 10px;
         }
+        #searchButton {
+            background-color: #4285F4; /* Cor do botão no estilo Google */
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 5px; /* Bordas arredondadas */
+            font-size: 14px; /* Tamanho da fonte do botão */
+        }
+        #searchButton:hover {
+            background-color: #357AE8; /* Efeito hover */
+        }
+        .result {
+            margin-bottom: 20px; /* Mais espaço entre resultados */
+            padding: 10px;
+            border: 1px solid #E0E0E0; /* Borda leve nos resultados */
+            border-radius: 5px; /* Bordas arredondadas nos resultados */
+            background-color: #F9F9F9; /* Fundo claro nos resultados */
+        }
+        #resultMessage {
+            color: blue; /* Cor azul */
+            font-weight: bold; /* Negrito */
+            text-transform: lowercase; /* Texto em minúsculas */
+        }
         @media (max-width: 600px) {
             body {
                 margin: 10px; /* Menos margem em dispositivos móveis */
@@ -64,7 +90,8 @@
         <input type="text" id="wordInput" placeholder="escreva aqui" />
         <button id="searchButton">pesquisar</button>
     </div>
-    <div id="loading">A carregar a informação, aguarde um pouco. Comece a pesquisar só depois de esta mensagem desaparecer</div>
+    <div id="loading">A CARREGAR A INFORMAÇÃO, AGUARDE UM POUCO. COMECE A PESQUISAR SÓ DEPOIS DE ESTA MENSAGEM DESAPARECER</div>
+    <div id="resultMessage">pode começar a pesquisar</div>
     <div id="output"></div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
@@ -86,7 +113,7 @@
             return extractTextFromPdf(); // Ensure we wait for text extraction to complete
         }).then(() => {
             isLoading = false; // Set loading to false when done
-            document.getElementById('loading').textContent = 'PODE COMEÇAR A PESQUISAR'; // Update loading message
+            document.getElementById('resultMessage').textContent = 'pode começar a pesquisar'; // Update loading message
         }).catch(function(error) {
             console.error('Error loading PDF:', error);
             document.getElementById('loading').textContent = 'Erro ao carregar o PDF.';
@@ -174,7 +201,7 @@
             paginatedResults.forEach((result) => {
                 const sentenceHtml = result.sentence.replace(new RegExp(`(${word})`, 'gi'), '<span class="highlight">$1</span>');
                 const contextButton = `<button class="context-button" onclick="showContext('${result.sentence}')">mostrar contexto</button>`;
-                output.innerHTML += `<p style="margin-bottom: 10px;">${sentenceHtml} (<i>Página ${result.page} do OE 2025</i>) ${contextButton}</p>`;
+                output.innerHTML += `<div class="result">${sentenceHtml} (<i>Página ${result.page} do OE 2025</i>) ${contextButton}</div>`;
             });
 
             const pagination = createPagination(totalPages);
@@ -197,14 +224,14 @@
             }
 
             for (let i = 1; i <= totalPages; i++) {
-                const pageButton = document.createElement('span');
-                pageButton.textContent = i;
-                pageButton.className = `page-number ${i === currentPage ? 'active' : ''}`;
-                pageButton.addEventListener('click', () => {
+                const pageNumber = document.createElement('span');
+                pageNumber.className = `page-number ${currentPage === i ? 'active' : ''}`;
+                pageNumber.textContent = i;
+                pageNumber.addEventListener('click', () => {
                     currentPage = i;
                     performSearch();
                 });
-                pagination.appendChild(pageButton);
+                pagination.appendChild(pageNumber);
             }
 
             if (currentPage < totalPages) {
@@ -220,8 +247,9 @@
             return pagination;
         }
 
+        // Show context around the found word
         function showContext(sentence) {
-            alert("Contexto da frase: " + sentence);
+            alert('Contexto: ' + sentence);
         }
     </script>
 </body>
