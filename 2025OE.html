@@ -45,9 +45,7 @@
 
         loadingTask.promise.then(function(pdf) {
             pdfDoc = pdf;
-            return extractTextFromPdf(); // Wait for text extraction to complete
-        }).then(() => {
-            isLoading = false; // Set loading to false when done
+            extractTextFromPdf();
             document.getElementById('loading').textContent = 'Pode começar a pesquisar.'; // Update loading message
         }).catch(function(error) {
             console.error('Error loading PDF:', error);
@@ -65,6 +63,7 @@
                 text += strings.join(' ') + '\n';  // Add newline for readability between pages
             }
             pdfText = text;
+            isLoading = false; // Set loading to false when done
         }
 
         // Search for the word in the extracted text
@@ -106,9 +105,10 @@
             const sentences = text.split(/(?<=[.?!])\s+/); // Split by sentence
             const matches = [];
 
-            sentences.forEach((sentence) => {
+            sentences.forEach((sentence, index) => {
                 if (sentence.toLowerCase().includes(wordLower)) {
-                    matches.push({ sentence }); // Store sentence without page number
+                    const pageNumber = Math.ceil((index + 1) / (text.split('\n').length / pdfDoc.numPages)); // Calculate page number
+                    matches.push({ sentence, page: pageNumber }); // Store sentence with page number
                 }
             });
 
@@ -127,14 +127,18 @@
 
             results.forEach((result) => {
                 const sentenceHtml = result.sentence.replace(new RegExp(`(${word})`, 'gi'), '<span class="highlight">$1</span>');
-                const contextButton = `<button onclick="showContext()">Show Context</button>`;
-                output.innerHTML += `<p>${sentenceHtml} (<i>Página do OE 2025</i>) ${contextButton}</p>`;
+                const contextButton = `<button onclick="showContext('${result.sentence}')">Show Context</button>`;
+                output.innerHTML += `<p>${sentenceHtml} (<i>Página ${result.page} do OE 2025</i>) ${contextButton}</p>`;
             });
         }
 
         // Show context around the sentence where the word was found
-        function showContext() {
-            alert('Contexto: Função não implementada.');
+        function showContext(sentence) {
+            const sentences = pdfText.split(/(?<=[.?!])\s+/);
+            const index = sentences.findIndex(s => s.trim() === sentence.trim()); // Find the exact match
+            const start = Math.max(0, index - 2); // Get two sentences before
+            const end = Math.min(sentences.length, index + 3); // Get two sentences after
+            alert('Contexto: ' + sentences.slice(start, end).join(' '));
         }
     </script>
 </body>
