@@ -27,8 +27,8 @@
 </head>
 <body>
     <h4>OE 2025 | MOTOR DE BUSCA CNN PORTUGAL</h4>
-    <input type="text" id="wordInput" placeholder="pesquise aqui" />
-    <button id="searchButton">Search</button>
+    <input type="text" id="wordInput" placeholder="escreva aqui" />
+    <button id="searchButton">pesquisar</button>
     <div id="loading">PDF a carregar. Comece a pesquisar só depois de esta mensagem desaparecer</div>
     <div id="output"></div>
 
@@ -45,8 +45,10 @@
 
         loadingTask.promise.then(function(pdf) {
             pdfDoc = pdf;
-            extractTextFromPdf();
-            document.getElementById('loading').textContent = 'pode começar a pesquisar'; // Update loading message
+            return extractTextFromPdf(); // Ensure we wait for text extraction to complete
+        }).then(() => {
+            isLoading = false; // Set loading to false when done
+            document.getElementById('loading').textContent = 'PODE COMEÇAR A PESQUISAR'; // Update loading message
         }).catch(function(error) {
             console.error('Error loading PDF:', error);
             document.getElementById('loading').textContent = 'Erro ao carregar o PDF.';
@@ -62,8 +64,7 @@
                 const strings = content.items.map(item => item.str);
                 text += strings.join(' ') + '\n';  // Add newline for readability between pages
             }
-            pdfText = text;
-            isLoading = false; // Set loading to false when done
+            pdfText = text; // Store extracted text
         }
 
         // Search for the word in the extracted text
@@ -127,7 +128,7 @@
 
             results.forEach((result) => {
                 const sentenceHtml = result.sentence.replace(new RegExp(`(${word})`, 'gi'), '<span class="highlight">$1</span>');
-                const contextButton = `<button onclick="showContext('${result.sentence}')">Show Context</button>`;
+                const contextButton = `<button onclick="showContext('${result.sentence}')">mostrar contexto (se disponível)</button>`;
                 output.innerHTML += `<p>${sentenceHtml} (<i>Página ${result.page} do OE 2025</i>) ${contextButton}</p>`;
             });
         }
