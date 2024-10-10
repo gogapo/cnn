@@ -29,6 +29,23 @@
         .search-container {
             margin-bottom: 20px;
         }
+        #wordInput {
+            width: 90%; /* Campo de pesquisa mais pequeno */
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        #searchButton {
+            padding: 10px 15px;
+            background-color: #4285f4; /* Azul Google */
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        #searchButton:hover {
+            background-color: #357ae8; /* Tom mais escuro de azul ao passar o mouse */
+        }
         .pagination {
             display: flex;
             align-items: center;
@@ -41,10 +58,19 @@
         }
         .active {
             font-weight: bold;
+            text-decoration: underline; /* Sublinha a página ativa */
         }
         .context-button {
             font-size: 10px; /* Botões de contexto menores */
             margin-left: 10px;
+            background-color: #f1f1f1;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            cursor: pointer;
+            padding: 5px;
+        }
+        .context-button:hover {
+            background-color: #e0e0e0; /* Tom mais claro ao passar o mouse */
         }
         @media (max-width: 600px) {
             body {
@@ -177,8 +203,7 @@
                 output.innerHTML += `<p style="margin-bottom: 10px;">${sentenceHtml} (<i>Página ${result.page} do OE 2025</i>) ${contextButton}</p>`;
             });
 
-            const pagination = createPagination(totalPages);
-            output.appendChild(pagination);
+            createPagination(totalPages); // Create pagination elements
         }
 
         // Create pagination elements
@@ -192,6 +217,7 @@
                 prevButton.addEventListener('click', () => {
                     currentPage--;
                     performSearch();
+                    window.scrollTo(0, 0); // Scroll to top on page change
                 });
                 pagination.appendChild(prevButton);
             }
@@ -203,6 +229,7 @@
                 pageButton.addEventListener('click', () => {
                     currentPage = i;
                     performSearch();
+                    window.scrollTo(0, 0); // Scroll to top on page change
                 });
                 pagination.appendChild(pageButton);
             }
@@ -213,15 +240,17 @@
                 nextButton.addEventListener('click', () => {
                     currentPage++;
                     performSearch();
+                    window.scrollTo(0, 0); // Scroll to top on page change
                 });
                 pagination.appendChild(nextButton);
             }
 
-            return pagination;
+            document.getElementById('output').appendChild(pagination);
         }
 
+        // Function to show context for a sentence
         function showContext(sentence) {
-            alert("Contexto da frase: " + sentence);
+            alert(`Contexto: ${sentence}`);
         }
     </script>
 </body>
