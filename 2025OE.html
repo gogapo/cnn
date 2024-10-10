@@ -134,11 +134,11 @@
 
         // Show context around the sentence where the word was found
         function showContext(sentence) {
-            const context = pdfText.split(/(?<=[.?!])\s+/);
-            const index = context.findIndex(s => s === sentence); // Find the index of the sentence
+            const sentences = pdfText.split(/(?<=[.?!])\s+/);
+            const index = sentences.findIndex(s => s.includes(sentence)); // Find the index of the sentence
             const start = Math.max(0, index - 2); // Get two sentences before
-            const end = Math.min(context.length, index + 3); // Get two sentences after
-            alert('Contexto: ' + context.slice(start, end).join(' '));
+            const end = Math.min(sentences.length, index + 3); // Get two sentences after
+            alert('Contexto: ' + sentences.slice(start, end).join(' '));
         }
     </script>
 </body>
