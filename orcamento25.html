@@ -11,15 +11,35 @@
             background-color: white; /* Fundo branco da página */
             color: #333; /* Cor do texto mais escura */
         }
+        #loading {
+            color: #005A9C;
+            margin-top: 20px;
+            font-weight: bold;
+            font-size: 20px; /* Tamanho da fonte aumentado */
+            text-align: left; /* Alinhamento à esquerda */
+            animation: neon 1.5s infinite alternate; /* Efeito neon */
+            opacity: 1; /* Iniciar com opacidade 1 */
+            transition: opacity 0.5s ease; /* Transição suave de opacidade */
+        }
+        @keyframes neon {
+            0% {
+                text-shadow: 0 0 5px #005A9C, 0 0 10px #005A9C, 0 0 15px #0076CE, 0 0 20px #0076CE;
+            }
+            100% {
+                text-shadow: 0 0 10px #005A9C, 0 0 20px #005A9C, 0 0 30px #0076CE, 0 0 40px #0076CE;
+            }
+        }
         #header {
-            font-size: 15px;
+            font-size: 24px; /* Tamanho da fonte aumentado */
             margin-bottom: 5px;
             font-weight: bold;
             color: #0076CE;
+            display: none; /* Ocultar inicialmente */
         }
         #link {
-            font-size: 10px;
+            font-size: 14px; /* Tamanho da fonte aumentado */
             margin-bottom: 20px;
+            display: none; /* Ocultar inicialmente */
         }
         #wordInput {
             padding: 10px;
@@ -28,6 +48,7 @@
             width: calc(100% - 22px); /* Largura total menos padding */
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra suave */
             display: none; /* Ocultar inicialmente */
+            margin-top: 10px; /* Espaçamento acima da barra de pesquisa */
         }
         #searchButton {
             padding: 10px 15px;
@@ -39,12 +60,6 @@
             margin-left: 5px;
             transition: background-color 0.3s; /* Transição suave */
             display: none; /* Ocultar inicialmente */
-        }
-        #loading {
-            color: #005A9C;
-            margin-top: 20px;
-            font-weight: bold;
-            font-size: 12px;
         }
         #output {
             margin-top: 20px;
@@ -68,9 +83,9 @@
     </style>
 </head>
 <body>
-    <div id="header"><a id="topAnchor"></a>OE 2025 • MOTOR DE BUSCA CNN PORTUGAL</div>
-    <div id="link">pode ver <a href="https://gogapo.github.io/cnn/relatorio_OE.pdf" target="_blank">AQUI</a> o documento na íntegra</div>
     <div id="loading">MOTOR DE BUSCA A CARREGAR... AGUARDE UM POUCO (É RÁPIDO)</div>
+    <div id="header">OE 2025 • MOTOR DE BUSCA CNN PORTUGAL</div>
+    <div id="link">pode ver AQUI o documento na íntegra</div>
     <input type="text" id="wordInput" placeholder="escreva aqui" />
     <button id="searchButton">pesquisar</button>
     <div id="output"></div>
@@ -94,9 +109,14 @@
             return extractTextFromPdf(); // Ensure we wait for text extraction to complete
         }).then(() => {
             isLoading = false; // Set loading to false when done
-            document.getElementById('loading').textContent = 'PODE COMEÇAR A PESQUISAR'; // Update loading message
-            document.getElementById('wordInput').style.display = 'block'; // Show input field
-            document.getElementById('searchButton').style.display = 'block'; // Show search button
+            document.getElementById('loading').style.opacity = 0; // Fade out loading message
+            setTimeout(() => {
+                document.getElementById('loading').style.display = 'none'; // Ocultar mensagem de carregamento
+                document.getElementById('header').style.display = 'block'; // Mostrar cabeçalho
+                document.getElementById('link').style.display = 'block'; // Mostrar link
+                document.getElementById('wordInput').style.display = 'block'; // Mostrar campo de entrada
+                document.getElementById('searchButton').style.display = 'block'; // Mostrar botão de busca
+            }, 500); // Delay para o efeito de opacidade
         }).catch(function(error) {
             console.error('Error loading PDF:', error);
             document.getElementById('loading').textContent = 'Erro ao carregar o PDF.';
@@ -140,7 +160,6 @@
                 const results = searchWordInText(word);
                 displayResults(results, word);
                 if (!hasSearched) {
-                    document.getElementById('loading').textContent = ''; // Clear loading message after first search
                     hasSearched = true; // Mark that a search has been performed
                 }
             } else {
@@ -174,38 +193,20 @@
                     resultDiv.innerHTML = `
                         ${result.sentence.replace(new RegExp(word, 'gi'), (match) => `<span class="highlight">${match}</span>`)} 
                         <span style="font-size: 12px; color: gray;">(retirado da página ${result.pageIndex + 1} do OE 2025)</span> 
-                        <button onclick="openPdf(${result.pageIndex})" style="margin-left: 5px;">mostrar no PDF</button>
-                    `; // Highlight the word found
+                        <button onclick="openPdf(${result.pageIndex})" style="margin-left: 10px;">Mostrar no PDF</button>`;
                     outputDiv.appendChild(resultDiv);
                 });
-                document.getElementById('endOfResults').style.display = 'block'; // Show end of results
+                document.getElementById('endOfResults').style.display = 'none'; // Hide end of results
             } else {
-                outputDiv.innerHTML = 'Nenhum resultado encontrado.';
-                document.getElementById('endOfResults').style.display = 'none'; // Hide if no results
+                outputDiv.innerHTML = '<div style="color: red;">Nenhum resultado encontrado.</div>';
+                document.getElementById('endOfResults').style.display = 'none'; // Hide end of results
             }
         }
 
-        // Function to open PDF at the specific page
+        // Open the PDF at a specific page
         function openPdf(pageIndex) {
-            const pageNumber = pageIndex + 1; // Convert index to page number
-            const pdfEmbedUrl = `${pdfUrl}#page=${pageNumber}`; // Append page number to PDF URL
-            window.open(pdfEmbedUrl, '_blank'); // Open in new tab
-        }
-
-        // Show or hide button based on scroll position
-        window.onscroll = function() {
-            const scrollButton = document.getElementById('scrollToTopButton');
-            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
-                scrollButton.style.display = "block";
-            } else {
-                scrollButton.style.display = "none";
-            }
-        };
-
-        // Scroll to top function
-        function scrollToTop() {
-            document.body.scrollTop = 0; // For Safari
-            document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
+            const url = `${pdfUrl}#page=${pageIndex + 1}`; // Create URL for specific page
+            window.open(url, '_blank'); // Open in new tab
         }
     </script>
 </body>
