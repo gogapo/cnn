@@ -71,13 +71,13 @@
             padding: 10px 15px;
             border: none;
             border-radius: 5px;
-            background-color: #28a745; /* Verde para o botão */
+            background-color: #007bff; /* Mesma cor azul do botão pesquisar */
             color: white; /* Texto branco */
             cursor: pointer;
             margin-top: 10px;
         }
         #backToTop:hover {
-            background-color: #218838; /* Verde mais escuro no hover */
+            background-color: #0056b3; /* Mesma cor azul escuro no hover */
         }
     </style>
 </head>
@@ -159,6 +159,7 @@
             } else {
                 document.getElementById('output').innerHTML = '<p>Por favor, insira uma palavra para pesquisar</p>';
                 document.getElementById('endOfResults').style.display = 'none'; // Ocultar "FIM DE RESULTADOS" se a pesquisa for vazia
+                document.getElementById('backToTop').style.display = 'none'; // Ocultar o botão "voltar ao início"
             }
         }
 
@@ -186,6 +187,7 @@
             if (results.length === 0) {
                 output.innerHTML = '<p>Nenhum resultado encontrado.</p>';
                 document.getElementById('endOfResults').style.display = 'none'; // Não mostrar "FIM DE RESULTADOS" se não houver resultados
+                document.getElementById('backToTop').style.display = 'none'; // Ocultar o botão "voltar ao início" se não houver resultados
                 return;
             }
 
@@ -195,44 +197,18 @@
                 output.innerHTML += `<div class="result">${sentenceHtml} (<i>Página ${result.page} do OE 2025</i>) ${contextButton}</div>`;
             });
 
-            document.getElementById('endOfResults').style.display = 'block'; // Mostrar "FIM DE RESULTADOS" apenas se houver resultados
+            document.getElementById('endOfResults').style.display = 'block'; // Mostrar "FIM DE RESULTADOS"
             document.getElementById('backToTop').style.display = 'block'; // Mostrar o botão "voltar ao início"
         }
 
-        // Show the context of the sentence
+        // Show context for the clicked sentence
         function showContext(sentence, pageIndex) {
-            const context = getContext(sentence, pageIndex);
-            alert(context); // Show the context in an alert box
+            alert(`Contexto:\n${sentence}\n\nPágina: ${pageIndex + 1}`);
         }
 
-        // Get context (previous and next sentences)
-        function getContext(sentence, pageIndex) {
-            const sentences = pageSentences[pageIndex];
-            const sentenceIndex = findSentenceIndex(pageIndex, sentence);
-            let context = '';
-
-            if (sentenceIndex > 0) {
-                context += `${sentences[sentenceIndex - 1].trim()} `; // Previous sentence
-            }
-
-            context += `${sentences[sentenceIndex].trim()}`; // Current sentence
-
-            if (sentenceIndex < sentences.length - 1) {
-                context += ` ${sentences[sentenceIndex + 1].trim()}`; // Next sentence
-            }
-
-            return context;
-        }
-
-        // Find the index of a sentence within a page
-        function findSentenceIndex(pageIndex, sentence) {
-            const sentences = pageSentences[pageIndex];
-            return sentences.findIndex(s => s.trim() === sentence.trim());
-        }
-
-        // Scroll to the top (anchor)
+        // Scroll to the top of the page
         function scrollToTop() {
-            document.getElementById('topAnchor').scrollIntoView({ behavior: 'smooth' });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     </script>
 </body>
