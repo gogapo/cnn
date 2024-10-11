@@ -216,7 +216,7 @@
             results.forEach((result, index) => {
                 const { sentence, pageIndex } = result;
                 const highlightedSentence = sentence.replace(new RegExp(`(${word})`, 'gi'), '<span class="highlight">$1</span>'); // Highlight the word
-                output.innerHTML += `<div class="result">Página ${pageIndex + 1}: ${highlightedSentence} <button onclick="showContext('${sentence}', ${pageIndex})">Mostrar contexto</button></div>`;
+                output.innerHTML += `<div class="result">Página ${pageIndex + 1}: ${highlightedSentence} <button onclick="showContext('${sentence.replace(/'/g, "\\'")}', ${pageIndex})">Mostrar contexto</button></div>`;
             });
 
             // Show or hide the "FIM DE RESULTADOS" message
@@ -228,6 +228,7 @@
             const contextText = getContextForSentence(sentence, pageIndex);
             document.getElementById('contextText').innerHTML = contextText; // Set the context text with HTML formatting
             document.getElementById('contextModal').style.display = 'flex'; // Show the modal
+            document.getElementById('contextContent').scrollTop = 0; // Scroll to the top of the modal
         }
 
         // Get the context for the selected sentence
@@ -237,11 +238,11 @@
 
             let context = '';
             if (sentenceIndex > 0) {
-                context += `<p>${paragraphsForPage[sentenceIndex - 1]}</p>`; // Parágrafo anterior
+                context += `<p>${paragraphsForPage[sentenceIndex - 1].trim()}</p>`; // Parágrafo anterior
             }
-            context += `<p>${paragraphsForPage[sentenceIndex]}</p>`; // Parágrafo atual
+            context += `<p>${paragraphsForPage[sentenceIndex].trim()}</p>`; // Parágrafo atual
             if (sentenceIndex < paragraphsForPage.length - 1) {
-                context += `<p>${paragraphsForPage[sentenceIndex + 1]}</p>`; // Parágrafo seguinte
+                context += `<p>${paragraphsForPage[sentenceIndex + 1].trim()}</p>`; // Parágrafo seguinte
             }
             return context;
         }
