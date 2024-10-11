@@ -68,18 +68,18 @@
             margin-top: 20px;
         }
         #backToTop {
-    display: none; /* Ocultar inicialmente */
-    padding: 10px 15px;
-    border: none;
-    border-radius: 5px;
-    background-color: #007bff; /* Azul para o botão, igual ao botão "Pesquisar" */
-    color: white; /* Texto branco */
-    cursor: pointer;
-    margin-top: 10px;
-}
-#backToTop:hover {
-    background-color: #0056b3; /* Azul mais escuro no hover, igual ao botão "Pesquisar" */
-}
+            display: none; /* Ocultar inicialmente */
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff; /* Azul para o botão, igual ao botão "Pesquisar" */
+            color: white; /* Texto branco */
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        #backToTop:hover {
+            background-color: #0056b3; /* Azul mais escuro no hover, igual ao botão "Pesquisar" */
+        }
     </style>
 </head>
 <body>
@@ -158,46 +158,48 @@
                     hasSearched = true; // Mark that a search has been performed
                 }
             } else {
-                document.getElementById('output').innerHTML = '<p>Por favor, insira uma palavra para pesquisar</p>';
-                document.getElementById('endOfResults').style.display = 'none'; // Ocultar "FIM DE RESULTADOS" se a pesquisa for vazia
+                alert('Por favor, insira uma palavra para pesquisar.');
             }
         }
 
-        // Find occurrences of the word in the text
+        // Search for the word in the extracted sentences
         function searchWordInText(word) {
-            const wordLower = word.toLowerCase();
-            const matches = [];
-
-            pageSentences.forEach((sentences, pageIndex) => {
+            const results = [];
+            for (let pageIndex = 0; pageIndex < pageSentences.length; pageIndex++) {
+                const sentences = pageSentences[pageIndex];
                 sentences.forEach((sentence) => {
-                    if (sentence.toLowerCase().includes(wordLower)) {
-                        matches.push({ sentence, page: pageIndex + 1 }); // Store sentence with page number
+                    if (sentence.toLowerCase().includes(word.toLowerCase())) {
+                        results.push({ sentence, pageIndex }); // Store both sentence and page index
                     }
                 });
-            });
-
-            return matches;
+            }
+            return results;
         }
 
-        // Display search results with the option to view the context
+        // Display results in the output div
         function displayResults(results, word) {
-            const output = document.getElementById('output');
-            output.innerHTML = ''; // Clear previous results
+            const outputDiv = document.getElementById('output');
+            outputDiv.innerHTML = ''; // Clear previous results
 
-            if (results.length === 0) {
-                output.innerHTML = '<p>Nenhum resultado encontrado.</p>';
-                document.getElementById('endOfResults').style.display = 'none'; // Não mostrar "FIM DE RESULTADOS" se não houver resultados
-                return;
+            if (results.length > 0) {
+                results.forEach(result => {
+                    const resultDiv = document.createElement('div');
+                    resultDiv.className = 'result';
+                    resultDiv.innerHTML = `
+                        ${result.sentence.replace(new RegExp(word, 'gi'), (match) => `<span class="highlight">${match}</span>`)} 
+                        <span style="font-size: 12px; color: gray;">(retirado da página ${result.pageIndex + 1} do OE 2025)</span> 
+                        <button onclick="showContext('${result.sentence}', ${result.pageIndex})">mostrar contexto</button>
+                    `; // Highlight the word and add page reference
+                    outputDiv.appendChild(resultDiv);
+                });
+
+                // Show "FIM DE RESULTADOS" only if there are results
+                document.getElementById('endOfResults').style.display = 'block';
+                document.getElementById('backToTop').style.display = 'block'; // Show "voltar ao início" button
+            } else {
+                outputDiv.innerHTML = '<p>Nenhum resultado encontrado.</p>';
+                document.getElementById('endOfResults').style.display = 'none'; // Hide "FIM DE RESULTADOS" if no results found
             }
-
-            results.forEach((result) => {
-                const sentenceHtml = result.sentence.replace(new RegExp(`(${word})`, 'gi'), '<span class="highlight">$1</span>');
-                const contextButton = `<button onclick="showContext('${result.sentence.replace(/'/g, "\\'")}', ${result.page - 1})">mostrar contexto</button>`;
-                output.innerHTML += `<div class="result">${sentenceHtml} (<i>Página ${result.page} do OE 2025</i>) ${contextButton}</div>`;
-            });
-
-            document.getElementById('endOfResults').style.display = 'block'; // Mostrar "FIM DE RESULTADOS" apenas se houver resultados
-            document.getElementById('backToTop').style.display = 'block'; // Mostrar o botão "voltar ao início"
         }
 
         // Show the context of the sentence
@@ -213,28 +215,41 @@
             let context = '';
 
             if (sentenceIndex > 0) {
-                context += `${sentences[sentenceIndex - 1].trim()} `; // Previous sentence
+                context += `${sentences[sentenceIndex - 1].trim()}\n\n`; // Previous sentence
             }
 
-            context += `${sentences[sentenceIndex].trim()}`; // Current sentence
+            context += `${sentences[sentenceIndex].trim()}\n\n`; // Current sentence
 
             if (sentenceIndex < sentences.length - 1) {
-                context += ` ${sentences[sentenceIndex + 1].trim()}`; // Next sentence
+                context += `${sentences[sentenceIndex + 1].trim()}`; // Next sentence
             }
 
             return context;
         }
 
-        // Find the index of a sentence within a page
+        // Find the index of the sentence in the sentences array
         function findSentenceIndex(pageIndex, sentence) {
             const sentences = pageSentences[pageIndex];
             return sentences.findIndex(s => s.trim() === sentence.trim());
         }
 
-        // Scroll to the top (anchor)
+        // Scroll to the top of the page
         function scrollToTop() {
-            document.getElementById('topAnchor').scrollIntoView({ behavior: 'smooth' });
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth' // Smooth scroll
+            });
         }
+
+        // Show/hide the "voltar ao início" button based on scroll position
+        window.onscroll = function() {
+            const backToTopButton = document.getElementById('backToTop');
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                backToTopButton.style.display = 'block'; // Show button
+            } else {
+                backToTopButton.style.display = 'none'; // Hide button
+            }
+        };
     </script>
 </body>
 </html>
