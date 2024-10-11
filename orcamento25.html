@@ -73,7 +73,7 @@
             border: none;
             background-color: #f0ad4e; /* Cor laranja */
             color: white; /* Texto branco */
-            cursor: pointer;
+            cursor: pointer; /* Adiciona o cursor de mão para botões */
         }
         .pagination button:hover {
             background-color: #ec971f; /* Laranja mais escuro no hover */
@@ -82,6 +82,9 @@
             background-color: #007bff; /* Cor azul para a página ativa */
             color: white; /* Texto branco para a página ativa */
             font-weight: bold; /* Texto em negrito para a página ativa */
+        }
+        .result button {
+            cursor: pointer; /* Adiciona o cursor de mão para botões de contexto */
         }
     </style>
 </head>
@@ -208,32 +211,27 @@
             if (currentPage > 1) {
                 pagination.innerHTML += `<button onclick="changePage(${currentPage - 1})">Anterior</button>`;
             }
+
             for (let i = 1; i <= totalPages; i++) {
-                if (i === currentPage) {
-                    pagination.innerHTML += `<button class="active">${i}</button>`; // Highlight active page
-                } else {
-                    pagination.innerHTML += `<button onclick="changePage(${i})">${i}</button>`;
-                }
+                const activeClass = (i === currentPage) ? 'active' : '';
+                pagination.innerHTML += `<button class="${activeClass}" onclick="changePage(${i})">${i}</button>`;
             }
+
             if (currentPage < totalPages) {
                 pagination.innerHTML += `<button onclick="changePage(${currentPage + 1})">Próximo</button>`;
             }
         }
 
-        // Change the current page and display results
+        // Change the current page for pagination
         function changePage(page) {
-            currentPage = page; // Update current page
-            performSearch(); // Perform search again to display results for the new page
-            window.scrollTo(0, 0); // Scroll to top of the page
+            currentPage = page;
+            performSearch(); // Re-perform search to update displayed results
+            window.scrollTo(0, 0); // Scroll to the top of the page
         }
 
-        // Show context around the sentence where the word was found
+        // Show the context of the highlighted sentence
         function showContext(sentence) {
-            const sentences = pageSentences.flat(); // Flatten the array of sentences
-            const index = sentences.findIndex(s => s.trim() === sentence.trim()); // Find the exact match
-            const start = Math.max(0, index - 2); // Get two sentences before
-            const end = Math.min(sentences.length, index + 3); // Get two sentences after
-            alert('Contexto: ' + sentences.slice(start, end).join(' '));
+            alert(`Contexto: ${sentence}`); // Exibe o contexto em um alerta
         }
     </script>
 </body>
