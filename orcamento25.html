@@ -86,7 +86,7 @@
     <div id="link">pode ver <a href="https://gogapo.github.io/cnn/relatorio_OE.pdf" target="_blank">AQUI</a> o documento na íntegra</div>
     <input type="text" id="wordInput" placeholder="escreva aqui" />
     <button id="searchButton">pesquisar</button>
-    <div id="loading"><span style="font-size:11px;color:#9e1b32;">MOTOR DE BUSCA A CARREGAR </span><br/><span style="font-size:15px;color:#9e1b32;">comece a pesquisar só depois de esta mensagem desaparecer</span></div>
+    <div id="loading"><span style="font-size:11px;color:#9e1b32;">!MOTOR DE BUSCA A CARREGAR </span><br/><span style="font-size:15px;color:#9e1b32;">comece a pesquisar só depois de esta mensagem desaparecer</span></div>
     <div id="output"></div>
     <div id="endOfResults">
         FIM DE RESULTADOS
@@ -144,7 +144,7 @@
         // Perform the search and display results
         function performSearch() {
             if (isLoading) {
-                alert('O PDF ainda está a carregar. Por favor, aguarde alguns segundos e tente novamente.');
+                alert('O motor de busca ainda está a carregar. Por favor, aguarde alguns segundos e tente novamente');
                 return;
             }
 
