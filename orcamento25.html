@@ -116,7 +116,6 @@
         }).then(() => {
             isLoading = false; // Set loading to false when done
             document.getElementById('loading').textContent = 'pode começar a pesquisar'; // Update loading message
-            adjustIframeHeight(); // Adjust iframe height after loading
         }).catch(function(error) {
             console.error('Error loading PDF:', error);
             document.getElementById('loading').textContent = 'Erro ao carregar o PDF.';
@@ -166,8 +165,6 @@
             } else {
                 document.getElementById('output').innerHTML = '<p>Por favor, insira uma palavra para pesquisar</p>';
             }
-
-            adjustIframeHeight(); // Adjust iframe height after search
         }
 
         // Find occurrences of the word in the text
@@ -210,62 +207,32 @@
                 output.innerHTML += `<div class="result">${sentenceHtml} (<i>Página ${result.page} do OE 2025</i>) ${contextButton}</div>`;
             });
 
-            // Add pagination
-            for (let i = 1; i <= totalPages; i++) {
-                const pageButton = document.createElement('button');
-                pageButton.textContent = i;
-                pageButton.className = currentPage === i ? 'active' : '';
-                pageButton.onclick = function() {
-                    currentPage = i; // Update current page
-                    displayResults(results, word); // Redisplay results for the new page
-                };
-                pagination.appendChild(pageButton);
+            // Create pagination buttons
+            if (currentPage > 1) {
+                pagination.innerHTML += `<button onclick="changePage(${currentPage - 1})">Anterior</button>`;
             }
 
-            // Add next/previous buttons
-            const prevButton = document.createElement('button');
-            prevButton.textContent = 'Anterior';
-            prevButton.disabled = currentPage === 1;
-            prevButton.onclick = function() {
-                if (currentPage > 1) {
-                    currentPage--;
-                    displayResults(results, word); // Redisplay results for the new page
-                }
-            };
-            pagination.prepend(prevButton); // Add to the beginning
+            for (let i = 1; i <= totalPages; i++) {
+                const activeClass = (i === currentPage) ? 'active' : '';
+                pagination.innerHTML += `<button class="${activeClass}" onclick="changePage(${i})">${i}</button>`;
+            }
 
-            const nextButton = document.createElement('button');
-            nextButton.textContent = 'Próximo';
-            nextButton.disabled = currentPage === totalPages;
-            nextButton.onclick = function() {
-                if (currentPage < totalPages) {
-                    currentPage++;
-                    displayResults(results, word); // Redisplay results for the new page
-                }
-            };
-            pagination.appendChild(nextButton); // Add to the end
+            if (currentPage < totalPages) {
+                pagination.innerHTML += `<button onclick="changePage(${currentPage + 1})">Próximo</button>`;
+            }
         }
 
-        // Show context for the selected sentence
+        // Change the current page for pagination
+        function changePage(page) {
+            currentPage = page;
+            performSearch(); // Re-perform search to update displayed results
+            window.scrollTo(0, 0); // Scroll to the top of the page
+        }
+
+        // Show the context of the highlighted sentence
         function showContext(sentence) {
-            alert('Contexto: ' + sentence);
+            alert(`Contexto: ${sentence}`); // Exibe o contexto em um alerta
         }
-
-        // Function to adjust the height of the iframe
-        function adjustIframeHeight() {
-            const body = document.body;
-            const html = document.documentElement;
-
-            // Calculate the total height of the content
-            const height = Math.max(body.scrollHeight, body.offsetHeight,
-                                     html.clientHeight, html.scrollHeight, html.offsetHeight);
-
-            // Send the height to the parent page
-            window.parent.postMessage(height, '*');
-        }
-
-        // Call adjustIframeHeight when the page loads or results change
-        window.onload = adjustIframeHeight;
     </script>
 </body>
 </html>
