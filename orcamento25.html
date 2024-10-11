@@ -42,7 +42,7 @@
             background-color: #0056b3; /* Azul mais escuro no hover */
         }
         #loading {
-            color: red;
+            color: #2E8BC0;
             margin-top: 20px;
             font-weight: bold;
         }
@@ -50,7 +50,7 @@
             margin-top: 20px;
         }
         .result {
-            background-color: #f0f0f0; /* Fundo cinza para resultados */
+            background-color: #f3f3f3; /* Fundo cinza para resultados */
             border: 1px solid #ddd; /* Borda leve */
             border-radius: 5px; /* Bordas arredondadas */
             padding: 10px;
@@ -224,6 +224,7 @@
         function changePage(page) {
             currentPage = page; // Update current page
             performSearch(); // Perform search again to display results for the new page
+            window.scrollTo(0, 0); // Scroll to top of the page
         }
 
         // Show context around the sentence where the word was found
