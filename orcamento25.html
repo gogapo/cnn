@@ -200,7 +200,7 @@
 
             currentResults.forEach((result) => {
                 const sentenceHtml = result.sentence.replace(new RegExp(`(${word})`, 'gi'), '<span class="highlight">$1</span>');
-                const contextButton = `<button onclick="showContext('${result.sentence}')">mostrar contexto (se disponível)</button>`;
+                const contextButton = `<button onclick="showContext('${result.sentence}')">mostrar contexto</button>`;
                 output.innerHTML += `<div class="result">${sentenceHtml} (<i>Página ${result.page} do OE 2025</i>) ${contextButton}</div>`;
             });
 
