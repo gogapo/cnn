@@ -13,12 +13,26 @@
         }
         iframe {
             width: 100%;
-            height: 600px; /* Altura do iframe */
             border: none; /* Remove a borda padrão do iframe */
+            transition: height 0.3s; /* Transição suave ao ajustar a altura */
         }
     </style>
 </head>
 <body>
-    <iframe src="https://gogapo.github.io/cnn/orcamento25.html" title="PDF Word Finder"></iframe> <!-- Substitua URL_DO_SEU_HTML pela URL do arquivo HTML acima -->
+
+    <iframe id="pdfFinder" src="https://gogapo.github.io/cnn/orcamento25.html" title="PDF Word Finder"></iframe> <!-- Substitua URL_DO_SEU_HTML pela URL do arquivo HTML acima -->
+    
+    <script>
+        const iframe = document.getElementById('pdfFinder');
+
+        // Ajusta a altura do iframe com base na mensagem recebida
+        window.addEventListener('message', function(event) {
+            // Verifica se a mensagem é um número
+            const height = parseInt(event.data, 10);
+            if (!isNaN(height)) {
+                iframe.style.height = height + 'px'; // Ajusta a altura do iframe
+            }
+        });
+    </script>
 </body>
 </html>
