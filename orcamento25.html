@@ -66,6 +66,42 @@
             font-weight: bold;
             color: #007bff; /* Cor para a mensagem de fim de resultados */
         }
+        /* Estilos para o contexto */
+        #contextModal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5); /* Fundo semi-transparente */
+            justify-content: center;
+            align-items: center;
+            z-index: 1000; /* Para ficar sobre outros elementos */
+        }
+        #contextContent {
+            background-color: white; /* Fundo branco */
+            padding: 20px;
+            border-radius: 10px; /* Bordas arredondadas */
+            width: 80%; /* Largura do modal */
+            max-width: 600px; /* Largura máxima */
+            max-height: 80%; /* Altura máxima */
+            overflow-y: auto; /* Scroll vertical se necessário */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra do modal */
+        }
+        #closeModal {
+            background-color: #007bff; /* Cor do botão de fechar */
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            margin-top: 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        #closeModal:hover {
+            background-color: #0056b3; /* Azul mais escuro no hover */
+        }
     </style>
 </head>
 <body>
@@ -76,6 +112,14 @@
     <div id="loading">!!!MOTOR DE BUSCA A CARREGAR!!! Comece a pesquisar só depois de esta mensagem desaparecer</div>
     <div id="output"></div>
     <div id="endOfResults" style="display: none;">FIM DE RESULTADOS</div> <!-- Mensagem de fim de resultados -->
+
+    <!-- Modal para mostrar o contexto -->
+    <div id="contextModal">
+        <div id="contextContent">
+            <div id="contextText"></div> <!-- Para exibir o contexto -->
+            <button id="closeModal">Fechar</button>
+        </div>
+    </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
     <script>
@@ -156,7 +200,7 @@
             pageSentences.forEach((sentences, pageIndex) => {
                 sentences.forEach((sentence) => {
                     if (sentence.toLowerCase().includes(wordLower)) {
-                        matches.push({ sentence, page: pageIndex + 1 }); // Store sentence with page number
+                        matches.push({ sentence, pageIndex });
                     }
                 });
             });
@@ -164,50 +208,45 @@
             return matches;
         }
 
-        // Display search results with the option to view the context
+        // Display search results
         function displayResults(results, word) {
             const output = document.getElementById('output');
-            const endOfResults = document.getElementById('endOfResults');
-            output.innerHTML = '';
-            endOfResults.style.display = 'none'; // Hide end of results message
+            output.innerHTML = ''; // Clear previous results
 
-            if (results.length === 0) {
-                output.innerHTML = '<p>Nenhum resultado encontrado.</p>';
-                return;
-            }
-
-            results.forEach((result) => {
-                const sentenceHtml = result.sentence.replace(new RegExp(`(${word})`, 'gi'), '<span class="highlight">$1</span>');
-                const contextButton = `<button onclick="showContext(${result.page - 1}, '${result.sentence}')">mostrar contexto</button>`;
-                output.innerHTML += `<div class="result">${sentenceHtml} (<i>Página ${result.page} do OE 2025</i>) ${contextButton}</div>`;
+            results.forEach((result, index) => {
+                const { sentence, pageIndex } = result;
+                const highlightedSentence = sentence.replace(new RegExp(`(${word})`, 'gi'), '<span class="highlight">$1</span>'); // Highlight the word
+                output.innerHTML += `<div class="result">Página ${pageIndex + 1}: ${highlightedSentence} <button onclick="showContext('${sentence}', ${pageIndex})">Mostrar contexto</button></div>`;
             });
 
-            // Show the end of results message
-            endOfResults.style.display = 'block';
+            // Show or hide the "FIM DE RESULTADOS" message
+            document.getElementById('endOfResults').style.display = results.length > 0 ? 'block' : 'none';
         }
 
-        // Show the context of the highlighted sentence
-        function showContext(pageIndex, sentence) {
-            const paragraphIndex = findParagraphIndex(pageIndex, sentence);
-            const context = [];
-
-            // Add previous paragraph if exists
-            if (paragraphIndex > 0) {
-                context.push(paragraphs[pageIndex][paragraphIndex - 1]);
-            }
-
-            // Add current paragraph
-            context.push(paragraphs[pageIndex][paragraphIndex]);
-
-            // Add next paragraph if exists
-            if (paragraphIndex < paragraphs[pageIndex].length - 1) {
-                context.push(paragraphs[pageIndex][paragraphIndex + 1]);
-            }
-
-            alert(`Contexto:\n\n${context.join('\n\n')}`); // Exibe o contexto em um alerta
+        // Show context for the clicked sentence
+        function showContext(sentence, pageIndex) {
+            const contextText = getContextForSentence(sentence, pageIndex);
+            document.getElementById('contextText').innerHTML = contextText; // Set the context text with HTML formatting
+            document.getElementById('contextModal').style.display = 'flex'; // Show the modal
         }
 
-        // Find the index of the paragraph containing the sentence
+        // Get the context for the selected sentence
+        function getContextForSentence(sentence, pageIndex) {
+            const paragraphsForPage = paragraphs[pageIndex];
+            const sentenceIndex = findParagraphIndex(pageIndex, sentence);
+
+            let context = '';
+            if (sentenceIndex > 0) {
+                context += `<p>${paragraphsForPage[sentenceIndex - 1]}</p>`; // Parágrafo anterior
+            }
+            context += `<p>${paragraphsForPage[sentenceIndex]}</p>`; // Parágrafo atual
+            if (sentenceIndex < paragraphsForPage.length - 1) {
+                context += `<p>${paragraphsForPage[sentenceIndex + 1]}</p>`; // Parágrafo seguinte
+            }
+            return context;
+        }
+
+        // Find the index of the paragraph that contains the given sentence
         function findParagraphIndex(pageIndex, sentence) {
             const paragraphsForPage = paragraphs[pageIndex];
             for (let i = 0; i < paragraphsForPage.length; i++) {
@@ -217,6 +256,11 @@
             }
             return -1; // Return -1 if not found
         }
+
+        // Close the context modal
+        document.getElementById('closeModal').addEventListener('click', function() {
+            document.getElementById('contextModal').style.display = 'none'; // Hide the modal
+        });
     </script>
 </body>
 </html>
