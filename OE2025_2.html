@@ -4,30 +4,59 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PDF Word Finder</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet"> <!-- Fonte Google -->
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Roboto', sans-serif; /* Fonte moderna */
             margin: 20px;
             background-color: white; /* Fundo branco */
+            color: #333; /* Cor do texto */
         }
         #output {
             margin-top: 20px;
         }
         .highlight {
-            background-color: yellow;
+            background-color: #f1c40f; /* Amarelo suave para destaque */
         }
         .context {
             margin-left: 20px;
             color: gray;
         }
         #loading {
-            color: red;
+            color: #e74c3c; /* Vermelho */
             margin-top: 20px;
             font-weight: bold; /* Negrito */
             margin-bottom: 20px; /* Espaço adicional */
         }
         .search-container {
             margin-bottom: 20px;
+            display: flex; /* Flexbox para alinhamento */
+            align-items: center; /* Centralizar verticalmente */
+        }
+        #wordInput {
+            flex: 1; /* Ocupa o espaço disponível */
+            padding: 10px;
+            border: 1px solid #ccc; /* Bordas suaves */
+            border-radius: 4px; /* Bordas arredondadas */
+            font-size: 16px; /* Tamanho da fonte */
+            transition: border-color 0.3s; /* Transição suave */
+        }
+        #wordInput:focus {
+            border-color: #3498db; /* Cor ao focar */
+            outline: none; /* Remover contorno padrão */
+        }
+        #searchButton {
+            padding: 10px 15px; /* Tamanho do botão */
+            background-color: #3498db; /* Cor do botão */
+            color: white; /* Cor do texto */
+            border: none; /* Sem bordas */
+            border-radius: 4px; /* Bordas arredondadas */
+            cursor: pointer; /* Mostrar cursor de mão */
+            margin-left: 10px; /* Espaço à esquerda */
+            transition: background-color 0.3s; /* Transição suave */
+        }
+        #searchButton:hover {
+            background-color: #2980b9; /* Cor ao passar o mouse */
         }
         .pagination {
             display: flex;
@@ -38,13 +67,25 @@
         .page-number {
             margin: 0 5px; /* Espaço entre os números de página */
             cursor: pointer;
+            font-weight: 500; /* Peso da fonte */
+            color: #3498db; /* Cor dos números */
         }
         .active {
             font-weight: bold;
+            text-decoration: underline; /* Sublinha a página ativa */
         }
         .context-button {
-            font-size: 10px; /* Botões de contexto menores */
+            font-size: 12px; /* Aumentar o tamanho dos botões de contexto */
             margin-left: 10px;
+            background-color: #ecf0f1; /* Fundo suave */
+            border: none; /* Sem bordas */
+            border-radius: 4px; /* Bordas arredondadas */
+            padding: 5px 8px; /* Tamanho do botão */
+            cursor: pointer; /* Mostrar cursor de mão */
+            transition: background-color 0.3s; /* Transição suave */
+        }
+        .context-button:hover {
+            background-color: #bdc3c7; /* Cor ao passar o mouse */
         }
         @media (max-width: 600px) {
             body {
@@ -57,8 +98,8 @@
     </style>
 </head>
 <body>
-    <div style="font-size:15px; text-align: left;">OE 2025 | MOTOR DE BUSCA CNN PORTUGAL</div>
-    <div style="font-size:8px; text-align: left;">pode ver <a href="https://gogapo.github.io/cnn/relatorio_OE.pdf" target="_blank">AQUI</a> o documento na íntegra</div>
+    <div style="font-size: 18px; font-weight: 500; text-align: left;">OE 2025 | MOTOR DE BUSCA CNN PORTUGAL</div>
+    <div style="font-size: 10px; text-align: left;">pode ver <a href="https://gogapo.github.io/cnn/relatorio_OE.pdf" target="_blank" style="color: #3498db; text-decoration: underline;">AQUI</a> o documento na íntegra</div>
     <br />
     <div class="search-container">
         <input type="text" id="wordInput" placeholder="escreva aqui" />
@@ -162,66 +203,80 @@
             output.innerHTML = '';
 
             if (results.length === 0) {
-                output.innerHTML = '<p>Nenhum resultado encontrado.</p>';
+                output.innerHTML = '<p>Nenhum resultado encontrado para "' + word + '"</p>';
                 return;
             }
 
+            // Pagination logic
             const totalPages = Math.ceil(results.length / resultsPerPage);
-            const start = (currentPage - 1) * resultsPerPage;
-            const end = Math.min(start + resultsPerPage, results.length);
-            const paginatedResults = results.slice(start, end);
+            const startIndex = (currentPage - 1) * resultsPerPage;
+            const endIndex = Math.min(startIndex + resultsPerPage, results.length);
+            const currentResults = results.slice(startIndex, endIndex);
 
-            paginatedResults.forEach((result) => {
-                const sentenceHtml = result.sentence.replace(new RegExp(`(${word})`, 'gi'), '<span class="highlight">$1</span>');
-                const contextButton = `<button class="context-button" onclick="showContext('${result.sentence}')">mostrar contexto</button>`;
-                output.innerHTML += `<p style="margin-bottom: 10px;">${sentenceHtml} (<i>Página ${result.page} do OE 2025</i>) ${contextButton}</p>`;
+            currentResults.forEach((result, index) => {
+                const context = getContextForSentence(result.sentence, word);
+                const resultElement = document.createElement('div');
+                resultElement.innerHTML = `
+                    <div class="result">
+                        <span class="highlight">${result.sentence.replace(new RegExp(`(${word})`, 'gi'), '<strong>$1</strong>')}</span>
+                        <span class="context"> (Página ${result.page}) ${context}</span>
+                    </div>
+                `;
+                output.appendChild(resultElement);
             });
 
-            const pagination = createPagination(totalPages);
-            output.appendChild(pagination);
-        }
-
-        // Create pagination elements
-        function createPagination(totalPages) {
-            const pagination = document.createElement('div');
-            pagination.className = 'pagination';
+            // Pagination controls
+            const paginationDiv = document.createElement('div');
+            paginationDiv.className = 'pagination';
 
             if (currentPage > 1) {
-                const prevButton = document.createElement('button');
-                prevButton.textContent = 'Anterior';
-                prevButton.addEventListener('click', () => {
+                const previousButton = document.createElement('span');
+                previousButton.className = 'page-number';
+                previousButton.textContent = 'Anterior';
+                previousButton.onclick = () => {
                     currentPage--;
-                    performSearch();
-                });
-                pagination.appendChild(prevButton);
+                    displayResults(results, word); // Re-display results
+                    window.scrollTo(0, 0); // Scroll to top
+                };
+                paginationDiv.appendChild(previousButton);
             }
 
             for (let i = 1; i <= totalPages; i++) {
-                const pageButton = document.createElement('span');
-                pageButton.textContent = i;
-                pageButton.className = `page-number ${i === currentPage ? 'active' : ''}`;
-                pageButton.addEventListener('click', () => {
+                const pageNumber = document.createElement('span');
+                pageNumber.className = `page-number ${currentPage === i ? 'active' : ''}`;
+                pageNumber.textContent = i;
+                pageNumber.onclick = () => {
                     currentPage = i;
-                    performSearch();
-                });
-                pagination.appendChild(pageButton);
+                    displayResults(results, word); // Re-display results
+                    window.scrollTo(0, 0); // Scroll to top
+                };
+                paginationDiv.appendChild(pageNumber);
             }
 
             if (currentPage < totalPages) {
-                const nextButton = document.createElement('button');
+                const nextButton = document.createElement('span');
+                nextButton.className = 'page-number';
                 nextButton.textContent = 'Próximo';
-                nextButton.addEventListener('click', () => {
+                nextButton.onclick = () => {
                     currentPage++;
-                    performSearch();
-                });
-                pagination.appendChild(nextButton);
+                    displayResults(results, word); // Re-display results
+                    window.scrollTo(0, 0); // Scroll to top
+                };
+                paginationDiv.appendChild(nextButton);
             }
 
-            return pagination;
+            output.appendChild(paginationDiv);
         }
 
-        function showContext(sentence) {
-            alert("Contexto da frase: " + sentence);
+        // Get context around the sentence
+        function getContextForSentence(sentence, word) {
+            const words = sentence.split(' ');
+            const wordIndex = words.findIndex(w => w.toLowerCase() === word.toLowerCase());
+            if (wordIndex < 0) return '';
+
+            const start = Math.max(wordIndex - 2, 0); // 2 words before
+            const end = Math.min(wordIndex + 3, words.length); // 2 words after
+            return '... ' + words.slice(start, end).join(' ') + ' ...'; // Join context words
         }
     </script>
 </body>
