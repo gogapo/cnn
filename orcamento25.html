@@ -66,16 +66,32 @@
             display: none; /* Ocultar inicialmente */
             margin-top: 20px;
         }
+        #backToTop {
+            display: none; /* Ocultar inicialmente */
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            background-color: #28a745; /* Verde para o botão */
+            color: white; /* Texto branco */
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        #backToTop:hover {
+            background-color: #218838; /* Verde mais escuro no hover */
+        }
     </style>
 </head>
 <body>
     <div id="header">OE 2025 | MOTOR DE BUSCA CNN PORTUGAL</div>
-    <div id="link">pode ver <a href="https://gogapo.github.io/cnn/relatorio_OE.pdf" target="_blank">AQUI</a> o documento na íntegra</div>
+    <div id="link"><a id="topAnchor"></a>pode ver <a href="https://gogapo.github.io/cnn/relatorio_OE.pdf" target="_blank">AQUI</a> o documento na íntegra</div>
     <input type="text" id="wordInput" placeholder="escreva aqui" />
     <button id="searchButton">pesquisar</button>
     <div id="loading"><span style="font-size:11px;color:#9e1b32;">MOTOR DE BUSCA A CARREGAR </span><br/><span style="font-size:15px;color:#9e1b32;">comece a pesquisar só depois de esta mensagem desaparecer</span></div>
     <div id="output"></div>
-    <div id="endOfResults">FIM DE RESULTADOS</div>
+    <div id="endOfResults">
+        FIM DE RESULTADOS
+        <button id="backToTop" onclick="scrollToTop()">voltar ao início</button>
+    </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
     <script>
@@ -180,26 +196,29 @@
             });
 
             document.getElementById('endOfResults').style.display = 'block'; // Mostrar "FIM DE RESULTADOS" apenas se houver resultados
+            document.getElementById('backToTop').style.display = 'block'; // Mostrar o botão "voltar ao início"
         }
 
-        // Show context for the clicked sentence in an alert
+        // Show the context of the sentence
         function showContext(sentence, pageIndex) {
-            const contextText = getContextForSentence(sentence, pageIndex);
-            alert(`Contexto:\n\n${contextText}`); // Display the context in an alert
+            const context = getContext(sentence, pageIndex);
+            alert(context); // Show the context in an alert box
         }
 
-        // Get the context for the selected sentence
-        function getContextForSentence(sentence, pageIndex) {
-            const paragraphsForPage = pageSentences[pageIndex];
+        // Get context (previous and next sentences)
+        function getContext(sentence, pageIndex) {
+            const sentences = pageSentences[pageIndex];
             const sentenceIndex = findSentenceIndex(pageIndex, sentence);
-
             let context = '';
+
             if (sentenceIndex > 0) {
-                context += `${paragraphsForPage[sentenceIndex - 1].trim()}\n\n`; // Parágrafo anterior
+                context += `${sentences[sentenceIndex - 1].trim()} `; // Previous sentence
             }
-            context += `${paragraphsForPage[sentenceIndex].trim()}\n\n`; // Parágrafo atual
-            if (sentenceIndex < paragraphsForPage.length - 1) {
-                context += `${paragraphsForPage[sentenceIndex + 1].trim()}`; // Próximo parágrafo
+
+            context += `${sentences[sentenceIndex].trim()}`; // Current sentence
+
+            if (sentenceIndex < sentences.length - 1) {
+                context += ` ${sentences[sentenceIndex + 1].trim()}`; // Next sentence
             }
 
             return context;
@@ -209,6 +228,11 @@
         function findSentenceIndex(pageIndex, sentence) {
             const sentences = pageSentences[pageIndex];
             return sentences.findIndex(s => s.trim() === sentence.trim());
+        }
+
+        // Scroll to the top (anchor)
+        function scrollToTop() {
+            document.getElementById('topAnchor').scrollIntoView({ behavior: 'smooth' });
         }
     </script>
 </body>
