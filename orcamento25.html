@@ -112,7 +112,7 @@
             return extractTextFromPdf(); // Ensure we wait for text extraction to complete
         }).then(() => {
             isLoading = false; // Set loading to false when done
-            document.getElementById('loading').textContent = 'PODE COMEÇAR A PESQUISAR'; // Update loading message
+            document.getElementById('loading').textContent = 'pode começar a pesquisar'; // Update loading message
         }).catch(function(error) {
             console.error('Error loading PDF:', error);
             document.getElementById('loading').textContent = 'Erro ao carregar o PDF.';
