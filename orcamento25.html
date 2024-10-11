@@ -191,51 +191,32 @@
 
             results.forEach((result) => {
                 const sentenceHtml = result.sentence.replace(new RegExp(`(${word})`, 'gi'), '<span class="highlight">$1</span>');
-                const contextButton = `<button onclick="showContext(${result.page - 1}, '${word}')">mostrar contexto</button>`;
-                output.innerHTML += `<div class="result">${sentenceHtml} (<i>Página ${result.page} do OE 2025</i>) ${contextButton}</div>`;
+                const resultDiv = document.createElement('div');
+                resultDiv.classList.add('result');
+                resultDiv.innerHTML = `
+                    <p>${sentenceHtml}</p>
+                    <button onclick="showContext(${result.page}, '${word}')">Mostrar contexto</button>
+                `;
+                output.appendChild(resultDiv);
             });
 
-            document.getElementById('endOfResults').style.display = 'block'; // Mostrar "FIM DE RESULTADOS" apenas se houver resultados
-            document.getElementById('backToTop').style.display = 'block'; // Mostrar botão "Voltar ao topo"
+            document.getElementById('endOfResults').style.display = 'block'; // Mostrar "FIM DE RESULTADOS"
+            document.getElementById('backToTop').style.display = 'block'; // Mostrar botão "voltar ao início"
         }
 
-        // Show context for the clicked result
-        function showContext(pageIndex, word) {
-            const sentences = pageSentences[pageIndex];
-            const index = sentences.findIndex(sentence => sentence.toLowerCase().includes(word.toLowerCase())); // Find the index of the sentence
-
-            let context = '';
-
-            // Add previous sentence if it exists
-            if (index > 0) {
-                context += `${sentences[index - 1]}\n\n`;
-            }
-
-            // Add current sentence
-            context += `${sentences[index]}\n\n`;
-
-            // Add next sentence if it exists
-            if (index < sentences.length - 1) {
-                context += `${sentences[index + 1]}\n\n`;
-            }
-
-            alert(`Contexto:\n\n${context}`);
+        // Function to show context when "Mostrar contexto" button is clicked
+        function showContext(pageNumber, word) {
+            const contextSentences = pageSentences[pageNumber - 1];
+            const contextHtml = contextSentences.map(sentence => {
+                return sentence.replace(new RegExp(`(${word})`, 'gi'), '<span class="highlight">$1</span>');
+            }).join('<br>');
+            alert(`Contexto da página ${pageNumber}:\n\n${contextHtml}`);
         }
 
         // Scroll to the top of the page
         function scrollToTop() {
-            window.scrollTo({ top: 0, behavior: 'smooth' }); // Rolagem suave para o topo
+            window.scrollTo({ top: 0, behavior: 'smooth' }); // Smooth scroll to top
         }
-
-        // Event listener to hide the "back to top" button when scrolling
-        window.addEventListener('scroll', function() {
-            const backToTopButton = document.getElementById('backToTop');
-            if (window.scrollY > 200) { // Mostrar botão se o usuário rolar para baixo mais de 200px
-                backToTopButton.style.display = 'block';
-            } else {
-                backToTopButton.style.display = 'none'; // Ocultar botão se não estiver rolando
-            }
-        });
     </script>
 </body>
 </html>
