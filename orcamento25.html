@@ -11,10 +11,6 @@
             background-color: #f9f9f9; /* Fundo mais suave */
             color: #333; /* Cor do texto mais escura */
         }
-        h1 {
-            font-size: 24px;
-            margin-bottom: 10px;
-        }
         #header {
             font-size: 15px;
             margin-bottom: 5px;
@@ -65,20 +61,21 @@
             background-color: yellow;
             font-weight: bold; /* Destacar a palavra encontrada */
         }
-        .context {
-            margin-left: 20px;
-            color: gray;
+        .pagination {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
         }
-        button {
-            margin-top: 5px;
-            padding: 5px;
+        .pagination button {
+            margin: 0 5px;
+            padding: 5px 10px;
             border-radius: 5px; /* Bordas arredondadas para botões */
             border: none;
             background-color: #f0ad4e; /* Cor laranja */
             color: white; /* Texto branco */
             cursor: pointer;
         }
-        button:hover {
+        .pagination button:hover {
             background-color: #ec971f; /* Laranja mais escuro no hover */
         }
     </style>
@@ -90,14 +87,16 @@
     <button id="searchButton">pesquisar</button>
     <div id="loading">A carregar a informação, aguarde um pouco. Comece a pesquisar só depois de esta mensagem desaparecer</div>
     <div id="output"></div>
+    <div class="pagination" id="pagination"></div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
     <script>
         let pdfDoc = null;
-        let pdfText = '';
         let pageSentences = []; // Array to hold sentences for each page
         let isLoading = true; // To track loading status
         let hasSearched = false; // To track if a search has been performed
+        let currentPage = 1; // Current page for pagination
+        const resultsPerPage = 10; // Limit of results per page
 
         // Load the PDF from the provided URL
         const pdfUrl = "https://gogapo.github.io/cnn/relatorio_OE.pdf";
@@ -179,18 +178,45 @@
         // Display search results with the option to view the context
         function displayResults(results, word) {
             const output = document.getElementById('output');
+            const pagination = document.getElementById('pagination');
             output.innerHTML = '';
+            pagination.innerHTML = ''; // Clear pagination
 
             if (results.length === 0) {
                 output.innerHTML = '<p>Nenhum resultado encontrado.</p>';
                 return;
             }
 
-            results.forEach((result) => {
+            // Calculate total pages
+            const totalPages = Math.ceil(results.length / resultsPerPage);
+            const startIndex = (currentPage - 1) * resultsPerPage;
+            const endIndex = Math.min(startIndex + resultsPerPage, results.length);
+            const currentResults = results.slice(startIndex, endIndex); // Get results for current page
+
+            currentResults.forEach((result) => {
                 const sentenceHtml = result.sentence.replace(new RegExp(`(${word})`, 'gi'), '<span class="highlight">$1</span>');
                 const contextButton = `<button onclick="showContext('${result.sentence}')">mostrar contexto (se disponível)</button>`;
                 output.innerHTML += `<div class="result">${sentenceHtml} (<i>Página ${result.page} do OE 2025</i>) ${contextButton}</div>`;
             });
+
+            // Create pagination buttons
+            if (currentPage > 1) {
+                pagination.innerHTML += `<button onclick="changePage(${currentPage - 1})">Anterior</button>`;
+            }
+
+            for (let i = 1; i <= totalPages; i++) {
+                pagination.innerHTML += `<button onclick="changePage(${i})">${i}</button>`;
+            }
+
+            if (currentPage < totalPages) {
+                pagination.innerHTML += `<button onclick="changePage(${currentPage + 1})">Próximo</button>`;
+            }
+        }
+
+        // Change the current page and display results
+        function changePage(page) {
+            currentPage = page; // Update current page
+            performSearch(); // Perform search again to display results for the new page
         }
 
         // Show context around the sentence where the word was found
