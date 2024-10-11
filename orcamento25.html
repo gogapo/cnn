@@ -195,61 +195,28 @@
 
                 // Show "FIM DE RESULTADOS" only if there are results
                 document.getElementById('endOfResults').style.display = 'block';
-                document.getElementById('backToTop').style.display = 'block'; // Show "voltar ao início" button
             } else {
-                outputDiv.innerHTML = '<p>Nenhum resultado encontrado.</p>';
-                document.getElementById('endOfResults').style.display = 'none'; // Hide "FIM DE RESULTADOS" if no results found
+                outputDiv.innerHTML = 'Nenhum resultado encontrado.';
+                document.getElementById('endOfResults').style.display = 'none';
             }
+
+            // Show the back to top button if results are displayed
+            const backToTopButton = document.getElementById('backToTop');
+            backToTopButton.style.display = results.length > 0 ? 'block' : 'none';
         }
 
-        // Show the context of the sentence
+        // Show context for the selected result
         function showContext(sentence, pageIndex) {
-            const context = getContext(sentence, pageIndex);
-            alert(context); // Show the context in an alert box
-        }
-
-        // Get context (previous and next sentences)
-        function getContext(sentence, pageIndex) {
-            const sentences = pageSentences[pageIndex];
-            const sentenceIndex = findSentenceIndex(pageIndex, sentence);
-            let context = '';
-
-            if (sentenceIndex > 0) {
-                context += `${sentences[sentenceIndex - 1].trim()}\n\n`; // Previous sentence
-            }
-
-            context += `${sentences[sentenceIndex].trim()}\n\n`; // Current sentence
-
-            if (sentenceIndex < sentences.length - 1) {
-                context += `${sentences[sentenceIndex + 1].trim()}`; // Next sentence
-            }
-
-            return context;
-        }
-
-        // Find the index of the sentence in the sentences array
-        function findSentenceIndex(pageIndex, sentence) {
-            const sentences = pageSentences[pageIndex];
-            return sentences.findIndex(s => s.trim() === sentence.trim());
+            const previousSentence = pageSentences[pageIndex][Math.max(0, pageSentences[pageIndex].indexOf(sentence) - 1)];
+            const nextSentence = pageSentences[pageIndex][Math.min(pageSentences[pageIndex].length - 1, pageSentences[pageIndex].indexOf(sentence) + 1)];
+            const context = `${previousSentence || ''}\n\n${sentence}\n\n${nextSentence || ''}`; // Formatting with line breaks
+            alert(context);
         }
 
         // Scroll to the top of the page
         function scrollToTop() {
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth' // Smooth scroll
-            });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
-
-        // Show/hide the "voltar ao início" button based on scroll position
-        window.onscroll = function() {
-            const backToTopButton = document.getElementById('backToTop');
-            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
-                backToTopButton.style.display = 'block'; // Show button
-            } else {
-                backToTopButton.style.display = 'none'; // Hide button
-            }
-        };
     </script>
 </body>
 </html>
