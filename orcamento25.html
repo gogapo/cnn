@@ -61,28 +61,6 @@
             background-color: yellow;
             font-weight: bold; /* Destacar a palavra encontrada */
         }
-        .pagination {
-            margin-top: 20px;
-            display: flex;
-            justify-content: center;
-        }
-        .pagination button {
-            margin: 0 5px;
-            padding: 5px 10px;
-            border-radius: 5px; /* Bordas arredondadas para botões */
-            border: none;
-            background-color: #f0ad4e; /* Cor laranja */
-            color: white; /* Texto branco */
-            cursor: pointer; /* Adiciona o cursor de mão para botões */
-        }
-        .pagination button:hover {
-            background-color: #ec971f; /* Laranja mais escuro no hover */
-        }
-        .pagination .active {
-            background-color: #007bff; /* Cor azul para a página ativa */
-            color: white; /* Texto branco para a página ativa */
-            font-weight: bold; /* Texto em negrito para a página ativa */
-        }
         .result button {
             cursor: pointer; /* Adiciona o cursor de mão para botões de contexto */
         }
@@ -95,7 +73,6 @@
     <button id="searchButton">pesquisar</button>
     <div id="loading">!!!MOTOR DE BUSCA A CARREGAR!!! Comece a pesquisar só depois de esta mensagem desaparecer</div>
     <div id="output"></div>
-    <div class="pagination" id="pagination"></div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
     <script>
@@ -103,8 +80,6 @@
         let pageSentences = []; // Array to hold sentences for each page
         let isLoading = true; // To track loading status
         let hasSearched = false; // To track if a search has been performed
-        let currentPage = 1; // Current page for pagination
-        const resultsPerPage = 10; // Limit of results per page
 
         // Load the PDF from the provided URL
         const pdfUrl = "https://gogapo.github.io/cnn/relatorio_OE.pdf";
@@ -186,81 +161,23 @@
         // Display search results with the option to view the context
         function displayResults(results, word) {
             const output = document.getElementById('output');
-            const pagination = document.getElementById('pagination');
             output.innerHTML = '';
-            pagination.innerHTML = ''; // Clear previous pagination
 
             if (results.length === 0) {
                 output.innerHTML = '<p>Nenhum resultado encontrado.</p>';
                 return;
             }
 
-            const totalPages = Math.ceil(results.length / resultsPerPage);
-            const start = (currentPage - 1) * resultsPerPage;
-            const end = Math.min(start + resultsPerPage, results.length);
-
-            for (let i = start; i < end; i++) {
-                const resultDiv = document.createElement('div');
-                resultDiv.className = 'result';
-                resultDiv.innerHTML = resultWithHighlight(results[i].sentence, word); // Highlight the searched word
-                const contextButton = document.createElement('button');
-                contextButton.textContent = 'Ver contexto';
-                contextButton.onclick = function() {
-                    showContext(results[i].page);
-                };
-                resultDiv.appendChild(contextButton);
-                output.appendChild(resultDiv);
-            }
-
-            // Create pagination buttons
-            if (currentPage > 1) {
-                const prevButton = document.createElement('button');
-                prevButton.textContent = 'Anterior';
-                prevButton.onclick = function() {
-                    currentPage--;
-                    displayResults(results, word); // Re-display results for the new page
-                    window.scrollTo(0, 0); // Scroll to the top of the iframe
-                    window.parent.scrollTo(0, 0); // Scroll to the top of the parent page
-                };
-                pagination.appendChild(prevButton);
-            }
-
-            for (let i = 1; i <= totalPages; i++) {
-                const pageButton = document.createElement('button');
-                pageButton.textContent = i;
-                pageButton.className = (i === currentPage) ? 'active' : '';
-                pageButton.onclick = function() {
-                    currentPage = i;
-                    displayResults(results, word); // Re-display results for the new page
-                    window.scrollTo(0, 0); // Scroll to the top of the iframe
-                    window.parent.scrollTo(0, 0); // Scroll to the top of the parent page
-                };
-                pagination.appendChild(pageButton);
-            }
-
-            if (currentPage < totalPages) {
-                const nextButton = document.createElement('button');
-                nextButton.textContent = 'Próximo';
-                nextButton.onclick = function() {
-                    currentPage++;
-                    displayResults(results, word); // Re-display results for the new page
-                    window.scrollTo(0, 0); // Scroll to the top of the iframe
-                    window.parent.scrollTo(0, 0); // Scroll to the top of the parent page
-                };
-                pagination.appendChild(nextButton);
-            }
+            results.forEach((result) => {
+                const sentenceHtml = result.sentence.replace(new RegExp(`(${word})`, 'gi'), '<span class="highlight">$1</span>');
+                const contextButton = `<button onclick="showContext('${result.sentence}')">mostrar contexto</button>`;
+                output.innerHTML += `<div class="result">${sentenceHtml} (<i>Página ${result.page} do OE 2025</i>) ${contextButton}</div>`;
+            });
         }
 
-        // Highlight the searched word in the result sentence
-        function resultWithHighlight(sentence, word) {
-            const regex = new RegExp(`(${word})`, 'gi');
-            return sentence.replace(regex, '<span class="highlight">$1</span>'); // Highlight matches
-        }
-
-        // Show context of the result from the specified page
-        function showContext(pageNumber) {
-            alert(`Mostrando contexto da página ${pageNumber}.`); // Implement context viewing logic as needed
-            // For now, it can just alert the user
+        // Show the context of the highlighted sentence
+        function showContext(sentence) {
+            alert(`Contexto: ${sentence}`); // Exibe o contexto em um alerta
         }
     </script>
 </body>
