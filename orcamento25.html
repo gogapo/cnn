@@ -4,84 +4,66 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MOTOR DE BUSCA CNN</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet"> <!-- Fontes do Google -->
     <style>
         body {
-            font-family: 'Roboto', sans-serif;
+            font-family: Arial, sans-serif;
             margin: 20px;
             background-color: white; /* Fundo branco da página */
             color: #333; /* Cor do texto mais escura */
-            line-height: 1.6; /* Melhor legibilidade */
         }
         #header {
-            font-size: 20px; /* Aumentar o tamanho da fonte do cabeçalho */
+            font-size: 15px;
             margin-bottom: 5px;
             font-weight: bold;
-            color: #4285F4; /* Cor azul do Google */
+            color: #0076CE;
         }
         #link {
-            font-size: 12px;
+            font-size: 10px;
             margin-bottom: 20px;
-            color: #4285F4; /* Cor azul do Google */
         }
         #wordInput {
-            padding: 12px;
-            border: 1px solid #DADCE0; /* Borda cinza */
-            border-radius: 24px; /* Bordas arredondadas */
-            width: calc(100% - 24px); /* Largura total menos padding */
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2); /* Sombra suave */
-            font-size: 16px; /* Aumentar a fonte de entrada */
-            transition: border 0.3s; /* Transição suave para foco */
-        }
-        #wordInput:focus {
-            border: 1px solid #4285F4; /* Mudar a cor da borda no foco */
-            outline: none; /* Remover contorno padrão */
+            padding: 10px;
+            border: 2px solid #007bff; /* Borda azul */
+            border-radius: 5px; /* Bordas arredondadas */
+            width: calc(100% - 22px); /* Largura total menos padding */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra suave */
+            display: none; /* Ocultar inicialmente */
         }
         #searchButton {
-            padding: 12px 20px;
+            padding: 10px 15px;
             border: none;
-            border-radius: 24px; /* Bordas arredondadas */
-            background-color: #4285F4; /* Botão azul */
+            border-radius: 5px;
+            background-color: #007bff; /* Botão azul */
             color: white; /* Texto branco */
-            font-weight: 500; /* Peso da fonte */
             cursor: pointer;
-            margin-left: 10px;
-            transition: background-color 0.3s, transform 0.2s; /* Transição suave */
-        }
-        #searchButton:hover {
-            background-color: #357AE8; /* Cor do botão ao passar o mouse */
-            transform: scale(1.05); /* Efeito de aumento ao passar o mouse */
+            margin-left: 5px;
+            transition: background-color 0.3s; /* Transição suave */
+            display: none; /* Ocultar inicialmente */
         }
         #loading {
             color: #005A9C;
             margin-top: 20px;
             font-weight: bold;
-            font-size: 14px;
+            font-size: 12px;
         }
         #output {
             margin-top: 20px;
         }
         .result {
-            background-color: #F7F7F7; /* Fundo cinza claro para resultados */
-            border: 1px solid #E0E0E0; /* Borda leve */
+            background-color: #F0F0F0; /* Fundo cinza para resultados */
+            border: 1px solid #ddd; /* Borda leve */
             border-radius: 5px; /* Bordas arredondadas */
-            padding: 15px; /* Aumentar o padding para mais espaço */
+            padding: 10px;
             margin-bottom: 10px; /* Espaçamento entre resultados */
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Sombra suave */
-            transition: transform 0.2s; /* Transição suave */
-        }
-        .result:hover {
-            transform: translateY(-2px); /* Levantar resultado ao passar o mouse */
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2); /* Sombra suave */
         }
         .highlight {
-            background-color: #FFEB3B; /* Cor amarela para destaque */
+            background-color: yellow;
             font-weight: bold; /* Destacar a palavra encontrada */
         }
         #endOfResults {
             display: none; /* Ocultar inicialmente */
             margin-top: 20px;
-            font-size: 12px; /* Tamanho da fonte menor */
-            color: gray; /* Cor do texto cinza */
         }
     </style>
 </head>
@@ -93,7 +75,7 @@
     <button id="searchButton">pesquisar</button>
     <div id="output"></div>
     <div id="endOfResults">
-        <span>FIM DE RESULTADOS</span>
+        <span style="font-size:12px">FIM DE RESULTADOS</span>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
@@ -191,15 +173,39 @@
                     resultDiv.className = 'result';
                     resultDiv.innerHTML = `
                         ${result.sentence.replace(new RegExp(word, 'gi'), (match) => `<span class="highlight">${match}</span>`)} 
-                        <small>(Página ${result.pageIndex + 1})</small>
-                    `;
+                        <span style="font-size: 12px; color: gray;">(retirado da página ${result.pageIndex + 1} do OE 2025)</span> 
+                        <button onclick="openPdf(${result.pageIndex})" style="margin-left: 5px;">mostrar no PDF</button>
+                    `; // Highlight the word found
                     outputDiv.appendChild(resultDiv);
                 });
-                document.getElementById('endOfResults').style.display = 'block'; // Show end of results message
+                document.getElementById('endOfResults').style.display = 'block'; // Show end of results
             } else {
-                outputDiv.innerHTML = '<div class="result">Nenhum resultado encontrado.</div>'; // No results found message
-                document.getElementById('endOfResults').style.display = 'none'; // Hide end of results message
+                outputDiv.innerHTML = 'Nenhum resultado encontrado.';
+                document.getElementById('endOfResults').style.display = 'none'; // Hide if no results
             }
+        }
+
+        // Function to open PDF at the specific page
+        function openPdf(pageIndex) {
+            const pageNumber = pageIndex + 1; // Convert index to page number
+            const pdfEmbedUrl = `${pdfUrl}#page=${pageNumber}`; // Append page number to PDF URL
+            window.open(pdfEmbedUrl, '_blank'); // Open in new tab
+        }
+
+        // Show or hide button based on scroll position
+        window.onscroll = function() {
+            const scrollButton = document.getElementById('scrollToTopButton');
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                scrollButton.style.display = "block";
+            } else {
+                scrollButton.style.display = "none";
+            }
+        };
+
+        // Scroll to top function
+        function scrollToTop() {
+            document.body.scrollTop = 0; // For Safari
+            document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
         }
     </script>
 </body>
