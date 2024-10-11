@@ -67,18 +67,18 @@
             margin-top: 20px;
         }
         #backToTop {
-            display: none; /* Ocultar inicialmente */
-            padding: 10px 15px;
-            border: none;
-            border-radius: 5px;
-            background-color: #007bff; /* Azul para o botão, igual ao botão "Pesquisar" */
-            color: white; /* Texto branco */
-            cursor: pointer;
-            margin-top: 10px;
-        }
-        #backToTop:hover {
-            background-color: #0056b3; /* Azul mais escuro no hover, igual ao botão "Pesquisar" */
-        }
+    display: none; /* Ocultar inicialmente */
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff; /* Azul para o botão, igual ao botão "Pesquisar" */
+    color: white; /* Texto branco */
+    cursor: pointer;
+    margin-top: 10px;
+}
+#backToTop:hover {
+    background-color: #0056b3; /* Azul mais escuro no hover, igual ao botão "Pesquisar" */
+}
     </style>
 </head>
 <body>
@@ -191,25 +191,48 @@
 
             results.forEach((result) => {
                 const sentenceHtml = result.sentence.replace(new RegExp(`(${word})`, 'gi'), '<span class="highlight">$1</span>');
-                const contextButton = `<button onclick="showContext('${result.sentence}', ${result.page})">Ver contexto</button>`;
-                output.innerHTML += `<div class="result">${sentenceHtml} (Página ${result.page}) ${contextButton}</div>`;
+                const contextButton = `<button onclick="showContext('${result.sentence.replace(/'/g, "\\'")}', ${result.page - 1})">mostrar contexto</button>`;
+                output.innerHTML += `<div class="result">${sentenceHtml} (<i>Página ${result.page} do OE 2025</i>) ${contextButton}</div>`;
             });
 
-            document.getElementById('endOfResults').style.display = 'block'; // Mostrar "FIM DE RESULTADOS" se houver resultados
-            document.getElementById('backToTop').style.display = 'block'; // Mostrar botão "voltar ao início"
+            document.getElementById('endOfResults').style.display = 'block'; // Mostrar "FIM DE RESULTADOS" apenas se houver resultados
+            document.getElementById('backToTop').style.display = 'block'; // Mostrar o botão "voltar ao início"
         }
 
-        // Show context when the button is clicked
-        function showContext(sentence, page) {
-            alert(`Contexto da pesquisa:\n"${sentence}"\n(Página ${page})`);
+        // Show the context of the sentence
+        function showContext(sentence, pageIndex) {
+            const context = getContext(sentence, pageIndex);
+            alert(context); // Show the context in an alert box
         }
 
-        // Function to scroll to the top of the page
+        // Get context (previous and next sentences)
+        function getContext(sentence, pageIndex) {
+            const sentences = pageSentences[pageIndex];
+            const sentenceIndex = findSentenceIndex(pageIndex, sentence);
+            let context = '';
+
+            if (sentenceIndex > 0) {
+                context += `${sentences[sentenceIndex - 1].trim()} `; // Previous sentence
+            }
+
+            context += `${sentences[sentenceIndex].trim()}`; // Current sentence
+
+            if (sentenceIndex < sentences.length - 1) {
+                context += ` ${sentences[sentenceIndex + 1].trim()}`; // Next sentence
+            }
+
+            return context;
+        }
+
+        // Find the index of a sentence within a page
+        function findSentenceIndex(pageIndex, sentence) {
+            const sentences = pageSentences[pageIndex];
+            return sentences.findIndex(s => s.trim() === sentence.trim());
+        }
+
+        // Scroll to the top (anchor)
         function scrollToTop() {
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth' // Rolagem suave
-            });
+            document.getElementById('topAnchor').scrollIntoView({ behavior: 'smooth' });
         }
     </script>
 </body>
