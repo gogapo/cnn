@@ -42,9 +42,10 @@
             background-color: #0056b3; /* Azul mais escuro no hover */
         }
         #loading {
-            color: #9e1b32;
+            color: #005A9C;
             margin-top: 20px;
             font-weight: bold;
+            font-size: 12px;
         }
         #output {
             margin-top: 20px;
@@ -72,7 +73,7 @@
     <div id="link">pode ver <a href="https://gogapo.github.io/cnn/relatorio_OE.pdf" target="_blank">AQUI</a> o documento na íntegra</div>
     <input type="text" id="wordInput" placeholder="escreva aqui" />
     <button id="searchButton">pesquisar</button>
-    <div id="loading">MOTOR DE BUSCA A CARREGAR - comece a pesquisar só depois de esta mensagem desaparecer</div>
+    <div id="loading"><span style="font-size:11px;color:#9e1b32;">MOTOR DE BUSCA A CARREGAR </span><br/><span style="font-size:15px;color:#9e1b32;">comece a pesquisar só depois de esta mensagem desaparecer</span></div>
     <div id="output"></div>
     <div id="endOfResults">FIM DE RESULTADOS</div>
 
@@ -92,7 +93,7 @@
             return extractTextFromPdf(); // Ensure we wait for text extraction to complete
         }).then(() => {
             isLoading = false; // Set loading to false when done
-            document.getElementById('loading').textContent = 'pode começar a pesquisar'; // Update loading message
+            document.getElementById('loading').textContent = 'PODE COMEÇAR A PESQUISAR'; // Update loading message
         }).catch(function(error) {
             console.error('Error loading PDF:', error);
             document.getElementById('loading').textContent = 'Erro ao carregar o PDF.';
@@ -141,6 +142,7 @@
                 }
             } else {
                 document.getElementById('output').innerHTML = '<p>Por favor, insira uma palavra para pesquisar</p>';
+                document.getElementById('endOfResults').style.display = 'none'; // Ocultar "FIM DE RESULTADOS" se a pesquisa for vazia
             }
         }
 
@@ -197,15 +199,16 @@
             }
             context += `${paragraphsForPage[sentenceIndex].trim()}\n\n`; // Parágrafo atual
             if (sentenceIndex < paragraphsForPage.length - 1) {
-                context += `${paragraphsForPage[sentenceIndex + 1].trim()}`; // Parágrafo seguinte
+                context += `${paragraphsForPage[sentenceIndex + 1].trim()}`; // Próximo parágrafo
             }
+
             return context;
         }
 
-        // Find the index of the sentence
+        // Find the index of a sentence within a page
         function findSentenceIndex(pageIndex, sentence) {
-            const sentencesForPage = pageSentences[pageIndex];
-            return sentencesForPage.findIndex(s => s.trim() === sentence.trim());
+            const sentences = pageSentences[pageIndex];
+            return sentences.findIndex(s => s.trim() === sentence.trim());
         }
     </script>
 </body>
