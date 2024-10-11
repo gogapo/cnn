@@ -102,6 +102,20 @@
         #closeModal:hover {
             background-color: #0056b3; /* Azul mais escuro no hover */
         }
+        #backToTop {
+            background-color: #007bff; /* Cor do botão voltar ao topo */
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            margin-top: 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+            display: none; /* Inicialmente oculto */
+        }
+        #backToTop:hover {
+            background-color: #0056b3; /* Azul mais escuro no hover */
+        }
     </style>
 </head>
 <body>
@@ -112,6 +126,7 @@
     <div id="loading">!!!MOTOR DE BUSCA A CARREGAR!!! Comece a pesquisar só depois de esta mensagem desaparecer</div>
     <div id="output"></div>
     <div id="endOfResults" style="display: none;">FIM DE RESULTADOS</div> <!-- Mensagem de fim de resultados -->
+    <button id="backToTop" onclick="scrollToTop()">Voltar ao topo</button> <!-- Botão para voltar ao topo -->
 
     <!-- Modal para mostrar o contexto -->
     <div id="contextModal">
@@ -188,18 +203,17 @@
                     hasSearched = true; // Mark that a search has been performed
                 }
             } else {
-                document.getElementById('output').innerHTML = '<p>Por favor, insira uma palavra para pesquisar</p>';
+                alert('Por favor, insira uma palavra para pesquisar.');
             }
         }
 
-        // Find occurrences of the word in the text
+        // Search for the word in the sentences
         function searchWordInText(word) {
-            const wordLower = word.toLowerCase();
             const matches = [];
 
             pageSentences.forEach((sentences, pageIndex) => {
                 sentences.forEach((sentence) => {
-                    if (sentence.toLowerCase().includes(wordLower)) {
+                    if (sentence.toLowerCase().includes(word.toLowerCase())) {
                         matches.push({ sentence, pageIndex });
                     }
                 });
@@ -221,6 +235,7 @@
 
             // Show or hide the "FIM DE RESULTADOS" message
             document.getElementById('endOfResults').style.display = results.length > 0 ? 'block' : 'none';
+            document.getElementById('backToTop').style.display = results.length > 0 ? 'block' : 'none'; // Exibir botão "Voltar ao topo"
         }
 
         // Show context for the clicked sentence
@@ -262,6 +277,11 @@
         document.getElementById('closeModal').addEventListener('click', function() {
             document.getElementById('contextModal').style.display = 'none'; // Hide the modal
         });
+
+        // Function to scroll to the top of the page
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' }); // Scroll to the top smoothly
+        }
     </script>
 </body>
 </html>
