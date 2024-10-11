@@ -179,6 +179,9 @@
 
             const pagination = createPagination(totalPages);
             output.appendChild(pagination);
+
+            // Scroll to top of the page after displaying results
+            window.scrollTo(0, 0);
         }
 
         // Create pagination elements
