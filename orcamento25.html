@@ -79,6 +79,7 @@
         #endOfResults {
             display: none; /* Ocultar inicialmente */
             margin-top: 20px;
+            font-size: 12px; /* Tamanho da fonte 12 */
         }
     </style>
 </head>
@@ -90,7 +91,7 @@
     <button id="searchButton">pesquisar</button>
     <div id="output"></div>
     <div id="endOfResults">
-        <span style="font-size:12px">FIM DE RESULTADOS</span>
+        FIM DOS RESULTADOS
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
@@ -193,10 +194,10 @@
                     resultDiv.innerHTML = `
                         ${result.sentence.replace(new RegExp(word, 'gi'), (match) => `<span class="highlight">${match}</span>`)} 
                         <span style="font-size: 12px; color: gray;">(retirado da página ${result.pageIndex + 1} do OE 2025)</span> 
-                        <button onclick="openPdf(${result.pageIndex})" style="margin-left: 10px;">Mostrar no PDF</button>`;
+                        <button onclick="openPdf(${result.pageIndex})" style="margin-left: 10px; padding: 5px; font-size: 10px;">Mostrar no PDF</button>`;
                     outputDiv.appendChild(resultDiv);
                 });
-                document.getElementById('endOfResults').style.display = 'none'; // Hide end of results
+                document.getElementById('endOfResults').style.display = 'block'; // Show end of results
             } else {
                 outputDiv.innerHTML = '<div style="color: red;">Nenhum resultado encontrado.</div>';
                 document.getElementById('endOfResults').style.display = 'none'; // Hide end of results
