@@ -4,80 +4,96 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MOTOR DE BUSCA CNN</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet"> <!-- Fontes do Google -->
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Roboto', sans-serif;
             margin: 20px;
             background-color: white; /* Fundo branco da página */
             color: #333; /* Cor do texto mais escura */
+            line-height: 1.6; /* Melhor legibilidade */
         }
         #header {
-            font-size: 15px;
+            font-size: 20px; /* Aumentar o tamanho da fonte do cabeçalho */
             margin-bottom: 5px;
             font-weight: bold;
-            color: #0076CE;
+            color: #4285F4; /* Cor azul do Google */
         }
         #link {
-            font-size: 10px;
+            font-size: 12px;
             margin-bottom: 20px;
+            color: #4285F4; /* Cor azul do Google */
         }
         #wordInput {
-            padding: 10px;
-            border: 2px solid #007bff; /* Borda azul */
-            border-radius: 5px; /* Bordas arredondadas */
-            width: calc(100% - 22px); /* Largura total menos padding */
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra suave */
-            font-size: 16px;
+            padding: 12px;
+            border: 1px solid #DADCE0; /* Borda cinza */
+            border-radius: 24px; /* Bordas arredondadas */
+            width: calc(100% - 24px); /* Largura total menos padding */
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2); /* Sombra suave */
+            font-size: 16px; /* Aumentar a fonte de entrada */
+            transition: border 0.3s; /* Transição suave para foco */
+        }
+        #wordInput:focus {
+            border: 1px solid #4285F4; /* Mudar a cor da borda no foco */
+            outline: none; /* Remover contorno padrão */
         }
         #searchButton {
-            padding: 10px 15px;
+            padding: 12px 20px;
             border: none;
-            border-radius: 5px;
-            background-color: #007bff; /* Botão azul */
+            border-radius: 24px; /* Bordas arredondadas */
+            background-color: #4285F4; /* Botão azul */
             color: white; /* Texto branco */
+            font-weight: 500; /* Peso da fonte */
             cursor: pointer;
-            margin-left: 5px;
-            transition: background-color 0.3s; /* Transição suave */
+            margin-left: 10px;
+            transition: background-color 0.3s, transform 0.2s; /* Transição suave */
         }
         #searchButton:hover {
-            background-color: #0056b3; /* Azul mais escuro no hover */
+            background-color: #357AE8; /* Cor do botão ao passar o mouse */
+            transform: scale(1.05); /* Efeito de aumento ao passar o mouse */
         }
         #loading {
             color: #005A9C;
             margin-top: 20px;
             font-weight: bold;
-            font-size: 12px;
+            font-size: 14px;
         }
         #output {
             margin-top: 20px;
         }
         .result {
-            background-color: #F0F0F0; /* Fundo cinza para resultados */
-            border: 1px solid #ddd; /* Borda leve */
+            background-color: #F7F7F7; /* Fundo cinza claro para resultados */
+            border: 1px solid #E0E0E0; /* Borda leve */
             border-radius: 5px; /* Bordas arredondadas */
-            padding: 10px;
+            padding: 15px; /* Aumentar o padding para mais espaço */
             margin-bottom: 10px; /* Espaçamento entre resultados */
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2); /* Sombra suave */
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Sombra suave */
+            transition: transform 0.2s; /* Transição suave */
+        }
+        .result:hover {
+            transform: translateY(-2px); /* Levantar resultado ao passar o mouse */
         }
         .highlight {
-            background-color: yellow;
+            background-color: #FFEB3B; /* Cor amarela para destaque */
             font-weight: bold; /* Destacar a palavra encontrada */
         }
         #endOfResults {
             display: none; /* Ocultar inicialmente */
             margin-top: 20px;
+            font-size: 12px; /* Tamanho da fonte menor */
+            color: gray; /* Cor do texto cinza */
         }
     </style>
 </head>
 <body>
     <div id="header"><a id="topAnchor"></a>OE 2025 • MOTOR DE BUSCA CNN PORTUGAL</div>
     <div id="link">pode ver <a href="https://gogapo.github.io/cnn/relatorio_OE.pdf" target="_blank">AQUI</a> o documento na íntegra</div>
+    <div id="loading">MOTOR DE BUSCA A CARREGAR... AGUARDE UM POUCO (É RÁPIDO)</div>
     <input type="text" id="wordInput" placeholder="escreva aqui" />
     <button id="searchButton">pesquisar</button>
-    <div id="loading"><span style="font-size:11px;color:#9e1b32;">! MOTOR DE BUSCA A CARREGAR </span><br/><span style="font-size:15px;color:#9e1b32;">comece a pesquisar só depois de esta mensagem desaparecer</span></div>
     <div id="output"></div>
     <div id="endOfResults">
-        <span style="font-size:12px">FIM DE RESULTADOS</span>
+        <span>FIM DE RESULTADOS</span>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
@@ -97,6 +113,8 @@
         }).then(() => {
             isLoading = false; // Set loading to false when done
             document.getElementById('loading').textContent = 'PODE COMEÇAR A PESQUISAR'; // Update loading message
+            document.getElementById('wordInput').style.display = 'block'; // Show input field
+            document.getElementById('searchButton').style.display = 'block'; // Show search button
         }).catch(function(error) {
             console.error('Error loading PDF:', error);
             document.getElementById('loading').textContent = 'Erro ao carregar o PDF.';
@@ -173,29 +191,16 @@
                     resultDiv.className = 'result';
                     resultDiv.innerHTML = `
                         ${result.sentence.replace(new RegExp(word, 'gi'), (match) => `<span class="highlight">${match}</span>`)} 
-                        <span style="font-size: 12px; color: gray;">(retirado da página ${result.pageIndex + 1} do OE 2025)</span> 
-                        <button onclick="openPdf(${result.pageIndex})" style="margin-left: 5px;">mostrar no PDF</button>
-                    `; // Highlight the word found
+                        <small>(Página ${result.pageIndex + 1})</small>
+                    `;
                     outputDiv.appendChild(resultDiv);
                 });
-                document.getElementById('endOfResults').style.display = 'block'; // Show end of results
+                document.getElementById('endOfResults').style.display = 'block'; // Show end of results message
             } else {
-                outputDiv.innerHTML = 'Nenhum resultado encontrado.';
-                document.getElementById('endOfResults').style.display = 'none'; // Hide if no results
+                outputDiv.innerHTML = '<div class="result">Nenhum resultado encontrado.</div>'; // No results found message
+                document.getElementById('endOfResults').style.display = 'none'; // Hide end of results message
             }
         }
-
-        // Function to open PDF at the specific page
-        function openPdf(pageIndex) {
-            const pageNumber = pageIndex + 1; // Convert index to page number
-            const pdfEmbedUrl = `${pdfUrl}#page=${pageNumber}`; // Append page number to PDF URL
-            window.open(pdfEmbedUrl, '_blank'); // Open in new tab
-        }
-
-        // Show or hide button based on scroll position
-        window.onscroll = function() {
-            // No backToTop button logic needed anymore
-        };
     </script>
 </body>
 </html>
