@@ -208,30 +208,53 @@
             });
 
             // Create pagination buttons
-            if (currentPage > 1) {
-                pagination.innerHTML += `<button onclick="changePage(${currentPage - 1})">Anterior</button>`;
-            }
+            createPaginationButtons(totalPages);
+        }
 
+        // Create pagination buttons
+        function createPaginationButtons(totalPages) {
+            const pagination = document.getElementById('pagination');
             for (let i = 1; i <= totalPages; i++) {
-                const activeClass = (i === currentPage) ? 'active' : '';
-                pagination.innerHTML += `<button class="${activeClass}" onclick="changePage(${i})">${i}</button>`;
+                const button = document.createElement('button');
+                button.textContent = i;
+                button.className = (i === currentPage) ? 'active' : '';
+                button.addEventListener('click', function() {
+                    currentPage = i; // Update current page
+                    performSearch(); // Re-perform search to update displayed results
+                    window.scrollTo(0, 0); // Scroll to the top of the iframe
+                    window.parent.scrollTo(0, 0); // Scroll to the top of the parent window
+                });
+                pagination.appendChild(button);
             }
 
-            if (currentPage < totalPages) {
-                pagination.innerHTML += `<button onclick="changePage(${currentPage + 1})">Próximo</button>`;
-            }
+            // Create Previous button
+            const prevButton = document.createElement('button');
+            prevButton.textContent = 'Anterior';
+            prevButton.disabled = currentPage === 1; // Disable if on first page
+            prevButton.addEventListener('click', function() {
+                if (currentPage > 1) {
+                    currentPage--;
+                    performSearch();
+                }
+            });
+            pagination.prepend(prevButton); // Add to the beginning of the pagination
+
+            // Create Next button
+            const nextButton = document.createElement('button');
+            nextButton.textContent = 'Próximo';
+            nextButton.disabled = currentPage === totalPages; // Disable if on last page
+            nextButton.addEventListener('click', function() {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    performSearch();
+                }
+            });
+            pagination.appendChild(nextButton); // Add to the end of the pagination
         }
 
-        // Change the current page for pagination
-        function changePage(page) {
-            currentPage = page;
-            performSearch(); // Re-perform search to update displayed results
-            window.scrollTo(0, 0); // Scroll to the top of the page
-        }
-
-        // Show the context of the highlighted sentence
+        // Show context for a found sentence (optional feature)
         function showContext(sentence) {
-            alert(`Contexto: ${sentence}`); // Exibe o contexto em um alerta
+            alert('Contexto: ' + sentence); // Simple alert for context
         }
     </script>
 </body>
