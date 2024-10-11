@@ -48,7 +48,7 @@
             padding: 10px;
             border: 2px solid #007bff;
             border-radius: 5px;
-            width: 100%; /* Barra de pesquisa a toda a largura */
+            width: 98%; /* Barra de pesquisa a toda a largura */
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             margin-top: 10px;
             text-align: left; /* Alinhar texto à esquerda */
@@ -103,6 +103,17 @@
             margin-top: 10px;
             display: inline-block;
         }
+        .viewContextButton {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            background-color: #e6ffe6;
+            color: #28a745;
+            cursor: pointer;
+            font-size: 12px;
+            margin-right: 5px; /* Espaço entre o botão de contexto e o botão ver no PDF */
+            display: inline-block;
+        }
     </style>
 </head>
 <body>
@@ -114,7 +125,7 @@
         <span style="font-size:18px;color:#007bff;">OE 2025 • MOTOR DE BUSCA</span><br/>
         <span style="font-weight:normal;font-size:9px;color:#A9A9A9;">POR CNN PORTUGAL • VEJA <a href="https://gogapo.github.io/cnn/relatorio_OE.pdf" target="_blank">AQUI</a> O OE NA ÍNTEGRA</span>
     </div>
-    <div id="link"></div><br/>
+    <div id="link"></div>
     <input type="text" id="wordInput" placeholder="escreva aqui" />
     <button id="searchButton">pesquisar</button>
     <div id="output"></div>
@@ -201,44 +212,60 @@
             const results = [];
             for (let pageIndex = 0; pageIndex < pageSentences.length; pageIndex++) {
                 const sentences = pageSentences[pageIndex];
-                sentences.forEach((sentence) => {
+                sentences.forEach((sentence, index) => {
                     if (sentence.toLowerCase().includes(word.toLowerCase())) {
-                        results.push({ sentence, pageIndex }); // Store both sentence and page index
+                        const previousSentence = sentences[index - 1] || '';
+                        const nextSentence = sentences[index + 1] || '';
+                        results.push({
+                            page: pageIndex + 1,
+                            sentence,
+                            previousSentence,
+                            nextSentence
+                        });
                     }
                 });
             }
             return results;
         }
 
-        // Display results in the output div
+        // Display the search results
         function displayResults(results, word) {
             const outputDiv = document.getElementById('output');
             outputDiv.innerHTML = ''; // Clear previous results
+            results.forEach(result => {
+                const resultDiv = document.createElement('div');
+                resultDiv.classList.add('result');
 
+                // Highlight the search word in the result sentence
+                const highlightedSentence = result.sentence.replace(new RegExp(word, 'gi'), match => `<span class="highlight">${match}</span>`);
+
+                resultDiv.innerHTML = `
+                    <p>"${highlightedSentence}"</p>
+                    <button class="viewContextButton" onclick="viewContext('${result.previousSentence}', '${result.sentence}', '${result.nextSentence}')">Ver contexto</button>
+                    <button class="viewPdfButton" onclick="viewPdf(${result.page})">Ver no PDF (Página ${result.page})</button>
+                `;
+                outputDiv.appendChild(resultDiv);
+            });
+
+            // Display end of results message
+            const endOfResultsDiv = document.getElementById('endOfResults');
             if (results.length > 0) {
-                results.forEach(result => {
-                    const resultDiv = document.createElement('div');
-                    resultDiv.classList.add('result');
-
-                    const highlightedSentence = result.sentence.replace(new RegExp(word, 'gi'), match => `<span class="highlight">${match}</span>`);
-                    resultDiv.innerHTML = `<p>${highlightedSentence}</p><p style="font-size:11px;color:#A9A9A9;">retirado da página ${result.pageIndex + 1} do OE 2025</p>`;
-
-                    const viewPdfButton = document.createElement('button');
-                    viewPdfButton.classList.add('viewPdfButton');
-                    viewPdfButton.textContent = 'Ver no PDF';
-                    viewPdfButton.addEventListener('click', () => {
-                        const pageNumber = result.pageIndex + 1;
-                        window.open(`${pdfUrl}#page=${pageNumber}`, '_blank');
-                    });
-
-                    resultDiv.appendChild(viewPdfButton); // Add the button to the result div
-                    outputDiv.appendChild(resultDiv); // Append result to output
-                });
-                document.getElementById('endOfResults').style.display = 'block'; // Show end of results message
+                endOfResultsDiv.style.display = 'block';
             } else {
+                endOfResultsDiv.style.display = 'none';
                 outputDiv.innerHTML = '<p>Nenhum resultado encontrado.</p>';
-                document.getElementById('endOfResults').style.display = 'none'; // Hide end of results message
             }
+        }
+
+        // View the context of the result (alert with previous, result, and next sentences)
+        function viewContext(previousSentence, sentence, nextSentence) {
+            alert(`\n\n${previousSentence}\n\n${sentence}\n\n${nextSentence}`);
+        }
+
+        // View the page in the PDF where the result is located
+        function viewPdf(pageNumber) {
+            const pdfUrlWithPage = `${pdfUrl}#page=${pageNumber}`;
+            window.open(pdfUrlWithPage, '_blank');
         }
     </script>
 </body>
