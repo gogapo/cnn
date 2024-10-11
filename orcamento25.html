@@ -167,7 +167,7 @@
 
             if (results.length === 0) {
                 output.innerHTML = '<p>Nenhum resultado encontrado.</p>';
-                document.getElementById('endOfResults').style.display = 'block'; // Show "FIM DE RESULTADOS" message
+                document.getElementById('endOfResults').style.display = 'none'; // Não mostrar "FIM DE RESULTADOS" se não houver resultados
                 return;
             }
 
@@ -177,7 +177,7 @@
                 output.innerHTML += `<div class="result">${sentenceHtml} (<i>Página ${result.page} do OE 2025</i>) ${contextButton}</div>`;
             });
 
-            document.getElementById('endOfResults').style.display = 'block'; // Show "FIM DE RESULTADOS" message
+            document.getElementById('endOfResults').style.display = 'block'; // Mostrar "FIM DE RESULTADOS" apenas se houver resultados
         }
 
         // Show context for the clicked sentence in an alert
