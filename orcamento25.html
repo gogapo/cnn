@@ -122,9 +122,9 @@
         <span style="font-size:13px;color:#007bff;">AGUARDE UM POUCO (É RÁPIDO)</span>
     </div>
     <div id="header">
-        <span style="font-size:18px;color:#007bff;">OE 2025 • MOTOR DE BUSCA</span><br/>
+        <span style="font-size:18px;color:#007bff;">OE 2025 <span style="font-size:18px;color:#A9A9A9">•</span> MOTOR DE BUSCA</span><br/>
         <span style="font-weight:normal;font-size:9px;color:#A9A9A9;">POR CNN PORTUGAL • VEJA <a href="https://gogapo.github.io/cnn/relatorio_OE.pdf" target="_blank">AQUI</a> O OE NA ÍNTEGRA</span>
-    </div>
+    </div><br/>
     <div id="link"></div>
     <input type="text" id="wordInput" placeholder="escreva aqui" />
     <button id="searchButton">pesquisar</button>
@@ -151,122 +151,112 @@
             isLoading = false; // Set loading to false when done
             document.getElementById('loading').style.opacity = 0; // Fade out loading message
             setTimeout(() => {
-                document.getElementById('loading').style.display = 'none'; // Ocultar mensagem de carregamento
-                document.getElementById('header').style.display = 'block'; // Mostrar cabeçalho
-                document.getElementById('link').style.display = 'block'; // Mostrar link
-                document.getElementById('wordInput').style.display = 'block'; // Mostrar campo de entrada
-                document.getElementById('searchButton').style.display = 'block'; // Mostrar botão de busca
-            }, 500); // Delay para o efeito de opacidade
-        }).catch(function(error) {
-            console.error('Error loading PDF:', error);
-            document.getElementById('loading').textContent = 'Erro ao carregar o PDF.';
-            isLoading = false; // Set loading to false on error
+                document.getElementById('loading').style.display = 'none'; // Hide loading message after fade
+                document.getElementById('header').style.display = 'block'; // Show header
+                document.getElementById('wordInput').style.display = 'block'; // Show word input
+                document.getElementById('searchButton').style.display = 'block'; // Show search button
+            }, 500); // Duration of fade out
         });
 
-        // Extract text from each page of the PDF
+        // Function to extract text from each page of the PDF
         async function extractTextFromPdf() {
-            for (let i = 1; i <= pdfDoc.numPages; i++) {
+            const numPages = pdfDoc.numPages;
+
+            for (let i = 1; i <= numPages; i++) {
                 const page = await pdfDoc.getPage(i);
-                const content = await page.getTextContent();
-                const strings = content.items.map(item => item.str);
-                const pageText = strings.join(' ');
-                const sentences = pageText.split(/(?<=[.?!])\s+/);
-                pageSentences.push(sentences); // Store sentences for the page
-            }
-        }
-
-        // Search for the word in the extracted text
-        document.getElementById('searchButton').addEventListener('click', function() {
-            performSearch();
-        });
-
-        // Perform the search when Enter is pressed in the input field
-        document.getElementById('wordInput').addEventListener('keydown', function(event) {
-            if (event.key === 'Enter') {
-                event.preventDefault();  
-                performSearch();
-            }
-        });
-
-        // Perform the search and display results
-        function performSearch() {
-            if (isLoading) {
-                alert('O motor de busca ainda está a carregar. Por favor, aguarde alguns segundos e tente novamente');
-                return;
-            }
-
-            const word = document.getElementById('wordInput').value.trim();
-            if (word) {
-                const results = searchWordInText(word);
-                displayResults(results, word);
-                if (!hasSearched) {
-                    hasSearched = true; // Mark that a search has been performed
-                }
-            } else {
-                alert('Por favor, insira uma palavra para pesquisar.');
+                const textContent = await page.getTextContent();
+                const textItems = textContent.items.map(item => item.str); // Extract strings
+                const pageText = textItems.join(' '); // Combine text items into one string
+                const sentences = pageText.split(/(?<=[.!?])\s+/); // Split into sentences
+                pageSentences[i - 1] = sentences; // Store sentences in the array
             }
         }
 
         // Search for the word in the extracted sentences
-        function searchWordInText(word) {
-            const results = [];
-            for (let pageIndex = 0; pageIndex < pageSentences.length; pageIndex++) {
-                const sentences = pageSentences[pageIndex];
-                sentences.forEach((sentence, index) => {
-                    if (sentence.toLowerCase().includes(word.toLowerCase())) {
-                        const previousSentence = sentences[index - 1] || '';
-                        const nextSentence = sentences[index + 1] || '';
-                        results.push({
-                            page: pageIndex + 1,
-                            sentence,
-                            previousSentence,
-                            nextSentence
-                        });
-                    }
+        function searchWord() {
+            const word = document.getElementById('wordInput').value.trim().toLowerCase();
+            const outputDiv = document.getElementById('output');
+            outputDiv.innerHTML = ''; // Clear previous results
+            const results = []; // To store results
+
+            if (word) {
+                hasSearched = true; // Mark that a search has been performed
+                // Search each page for the word
+                pageSentences.forEach((sentences, pageIndex) => {
+                    sentences.forEach(sentence => {
+                        if (sentence.toLowerCase().includes(word)) {
+                            // Store context sentences
+                            const previousSentence = sentences[sentences.indexOf(sentence) - 1] || '';
+                            const nextSentence = sentences[sentences.indexOf(sentence) + 1] || '';
+                            results.push({ sentence, previousSentence, nextSentence, page: pageIndex + 1 });
+                        }
+                    });
                 });
             }
-            return results;
+
+            displayResults(results, word); // Call displayResults with results
         }
 
         // Display the search results
         function displayResults(results, word) {
             const outputDiv = document.getElementById('output');
             outputDiv.innerHTML = ''; // Clear previous results
-            results.forEach(result => {
-                const resultDiv = document.createElement('div');
-                resultDiv.classList.add('result');
 
-                // Highlight the search word in the result sentence
-                const highlightedSentence = result.sentence.replace(new RegExp(word, 'gi'), match => `<span class="highlight">${match}</span>`);
-
-                resultDiv.innerHTML = `
-                    <p>"${highlightedSentence}"</p>
-                    <button class="viewContextButton" onclick="viewContext('${result.previousSentence}', '${result.sentence}', '${result.nextSentence}')">Ver contexto</button>
-                    <button class="viewPdfButton" onclick="viewPdf(${result.page})">Ver no PDF (Página ${result.page})</button>
-                `;
-                outputDiv.appendChild(resultDiv);
-            });
-
-            // Display end of results message
-            const endOfResultsDiv = document.getElementById('endOfResults');
+            // Check if there are any results to display
             if (results.length > 0) {
+                // Add the notes before the results
+                const notes = `
+                    <p style="font-size:11px">tem dois botões associados a cada resultado: 
+                        <strong>Ver contexto</strong> (mostra o parágrafo anterior e o parágrafo seguinte ao parágrafo mostrado no resultado, todos tirados do documento oficial do OE); 
+                        <strong>Ver no PDF oficial</strong>, com indicação do número da página de onde a frase do resultado foi retirada
+                        (em desktop, o botão abre a página exata do PDF; em alguns telefones, tem de inserir manualmente o número da página)
+                    </p>
+                `;
+                outputDiv.innerHTML += notes; // Add notes to the output div
+
+                results.forEach(result => {
+                    const resultDiv = document.createElement('div');
+                    resultDiv.classList.add('result');
+
+                    // Highlight the search word in the result sentence
+                    const highlightedSentence = result.sentence.replace(new RegExp(word, 'gi'), match => `<span class="highlight">${match}</span>`);
+
+                    resultDiv.innerHTML = `
+                        <p>"${highlightedSentence}"</p>
+                        <button class="viewContextButton" onclick="viewContext('${result.previousSentence}', '${result.sentence}', '${result.nextSentence}')">Ver contexto</button>
+                        <button class="viewPdfButton" onclick="viewPdf(${result.page})">Ver no PDF oficial (Página ${result.page})</button>
+                    `;
+                    outputDiv.appendChild(resultDiv);
+                });
+
+                // Display end of results message
+                const endOfResultsDiv = document.getElementById('endOfResults');
                 endOfResultsDiv.style.display = 'block';
             } else {
+                const endOfResultsDiv = document.getElementById('endOfResults');
                 endOfResultsDiv.style.display = 'none';
                 outputDiv.innerHTML = '<p>Nenhum resultado encontrado.</p>';
             }
         }
 
-        // View the context of the result (alert with previous, result, and next sentences)
-        function viewContext(previousSentence, sentence, nextSentence) {
-            alert(`\n\n${previousSentence}\n\n${sentence}\n\n${nextSentence}`);
+        // View context for the selected result
+        function viewContext(previousSentence, currentSentence, nextSentence) {
+            alert(`Parágrafo anterior: "${previousSentence}"\n\nParágrafo atual: "${currentSentence}"\n\nParágrafo seguinte: "${nextSentence}"`);
         }
 
-        // View the page in the PDF where the result is located
-        function viewPdf(pageNumber) {
-            const pdfUrlWithPage = `${pdfUrl}#page=${pageNumber}`;
-            window.open(pdfUrlWithPage, '_blank');
+        // View the PDF at the specified page
+        function viewPdf(page) {
+            const pdfWindow = window.open(pdfUrl + '#page=' + page, '_blank');
+            pdfWindow.focus(); // Focus on the new window
         }
+
+        // Add event listeners
+        document.getElementById('searchButton').addEventListener('click', searchWord);
+        document.getElementById('wordInput').addEventListener('keypress', function (event) {
+            if (event.key === 'Enter') {
+                searchWord();
+            }
+        });
     </script>
 </body>
 </html>
