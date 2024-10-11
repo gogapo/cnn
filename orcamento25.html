@@ -81,6 +81,7 @@
     <script>
         let pdfDoc = null;
         let pageSentences = []; // Array to hold sentences for each page
+        let paragraphs = []; // Array to hold paragraphs for each page
         let isLoading = true; // To track loading status
         let hasSearched = false; // To track if a search has been performed
 
@@ -107,8 +108,10 @@
                 const content = await page.getTextContent();
                 const strings = content.items.map(item => item.str);
                 const pageText = strings.join(' '); // Join page text
+                const pageParagraphs = pageText.split(/(?:\r\n|\r|\n)+/); // Split by paragraph
                 const sentences = pageText.split(/(?<=[.?!])\s+/); // Split by sentence
                 pageSentences.push(sentences); // Store sentences for the page
+                paragraphs.push(pageParagraphs); // Store paragraphs for the page
             }
         }
 
@@ -175,7 +178,7 @@
 
             results.forEach((result) => {
                 const sentenceHtml = result.sentence.replace(new RegExp(`(${word})`, 'gi'), '<span class="highlight">$1</span>');
-                const contextButton = `<button onclick="showContext('${result.sentence}')">mostrar contexto</button>`;
+                const contextButton = `<button onclick="showContext(${result.page - 1}, '${result.sentence}')">mostrar contexto</button>`;
                 output.innerHTML += `<div class="result">${sentenceHtml} (<i>Página ${result.page} do OE 2025</i>) ${contextButton}</div>`;
             });
 
@@ -184,8 +187,35 @@
         }
 
         // Show the context of the highlighted sentence
-        function showContext(sentence) {
-            alert(`Contexto: ${sentence}`); // Exibe o contexto em um alerta
+        function showContext(pageIndex, sentence) {
+            const paragraphIndex = findParagraphIndex(pageIndex, sentence);
+            const context = [];
+
+            // Add previous paragraph if exists
+            if (paragraphIndex > 0) {
+                context.push(paragraphs[pageIndex][paragraphIndex - 1]);
+            }
+
+            // Add current paragraph
+            context.push(paragraphs[pageIndex][paragraphIndex]);
+
+            // Add next paragraph if exists
+            if (paragraphIndex < paragraphs[pageIndex].length - 1) {
+                context.push(paragraphs[pageIndex][paragraphIndex + 1]);
+            }
+
+            alert(`Contexto:\n\n${context.join('\n\n')}`); // Exibe o contexto em um alerta
+        }
+
+        // Find the index of the paragraph containing the sentence
+        function findParagraphIndex(pageIndex, sentence) {
+            const paragraphsForPage = paragraphs[pageIndex];
+            for (let i = 0; i < paragraphsForPage.length; i++) {
+                if (paragraphsForPage[i].includes(sentence)) {
+                    return i; // Return the index of the paragraph
+                }
+            }
+            return -1; // Return -1 if not found
         }
     </script>
 </body>
