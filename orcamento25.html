@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDF Word Finder</title>
+    <title>MOTOR DE BUSCA CNN</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -67,22 +67,22 @@
             margin-top: 20px;
         }
         #backToTop {
-            display: none; /* Ocultar inicialmente */
-            padding: 10px 15px;
-            border: none;
-            border-radius: 5px;
-            background-color: #007bff; /* Azul para o botão, igual ao botão "Pesquisar" */
-            color: white; /* Texto branco */
-            cursor: pointer;
-            margin-top: 10px;
-        }
-        #backToTop:hover {
-            background-color: #0056b3; /* Azul mais escuro no hover, igual ao botão "Pesquisar" */
-        }
+    display: none; /* Ocultar inicialmente */
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff; /* Azul para o botão, igual ao botão "Pesquisar" */
+    color: white; /* Texto branco */
+    cursor: pointer;
+    margin-top: 10px;
+}
+#backToTop:hover {
+    background-color: #0056b3; /* Azul mais escuro no hover, igual ao botão "Pesquisar" */
+}
     </style>
 </head>
 <body>
-    <div id="header"><a id="topAnchor"></a>OE 2025 | MOTOR DE BUSCA CNN PORTUGAL</div>
+    <div id="header"><a id="topAnchor"></a>OE 2025 • MOTOR DE BUSCA CNN PORTUGAL</div>
     <div id="link">pode ver <a href="https://gogapo.github.io/cnn/relatorio_OE.pdf" target="_blank">AQUI</a> o documento na íntegra</div>
     <input type="text" id="wordInput" placeholder="escreva aqui" />
     <button id="searchButton">pesquisar</button>
@@ -191,51 +191,49 @@
 
             results.forEach((result) => {
                 const sentenceHtml = result.sentence.replace(new RegExp(`(${word})`, 'gi'), '<span class="highlight">$1</span>');
-                const contextButton = `<button onclick="showContext(${result.page - 1}, '${word}')">mostrar contexto</button>`;
+                const contextButton = `<button onclick="showContext('${result.sentence.replace(/'/g, "\\'")}', ${result.page - 1})">mostrar contexto</button>`;
                 output.innerHTML += `<div class="result">${sentenceHtml} (<i>Página ${result.page} do OE 2025</i>) ${contextButton}</div>`;
             });
 
             document.getElementById('endOfResults').style.display = 'block'; // Mostrar "FIM DE RESULTADOS" apenas se houver resultados
-            document.getElementById('backToTop').style.display = 'block'; // Mostrar botão "Voltar ao topo"
+            document.getElementById('backToTop').style.display = 'block'; // Mostrar o botão "voltar ao início"
         }
 
-        // Show context for the clicked result
-        function showContext(pageIndex, word) {
-            const sentences = pageSentences[pageIndex];
-            const index = sentences.findIndex(sentence => sentence.toLowerCase().includes(word.toLowerCase())); // Find the index of the sentence
+        // Show the context of the sentence
+        function showContext(sentence, pageIndex) {
+            const context = getContext(sentence, pageIndex);
+            alert(context); // Show the context in an alert box
+        }
 
+        // Get context (previous and next sentences)
+        function getContext(sentence, pageIndex) {
+            const sentences = pageSentences[pageIndex];
+            const sentenceIndex = findSentenceIndex(pageIndex, sentence);
             let context = '';
 
-            // Add previous sentence if it exists
-            if (index > 0) {
-                context += `${sentences[index - 1]}\n\n`;
+            if (sentenceIndex > 0) {
+                context += `${sentences[sentenceIndex - 1].trim()} `; // Previous sentence
             }
 
-            // Add current sentence
-            context += `${sentences[index]}\n\n`;
+            context += `${sentences[sentenceIndex].trim()}`; // Current sentence
 
-            // Add next sentence if it exists
-            if (index < sentences.length - 1) {
-                context += `${sentences[index + 1]}\n\n`;
+            if (sentenceIndex < sentences.length - 1) {
+                context += ` ${sentences[sentenceIndex + 1].trim()}`; // Next sentence
             }
 
-            alert(`Contexto:\n\n${context}`);
+            return context;
         }
 
-        // Scroll to the top of the page
+        // Find the index of a sentence within a page
+        function findSentenceIndex(pageIndex, sentence) {
+            const sentences = pageSentences[pageIndex];
+            return sentences.findIndex(s => s.trim() === sentence.trim());
+        }
+
+        // Scroll to the top (anchor)
         function scrollToTop() {
-            window.scrollTo({ top: 0, behavior: 'smooth' }); // Rolagem suave para o topo
+            document.getElementById('topAnchor').scrollIntoView({ behavior: 'smooth' });
         }
-
-        // Event listener to hide the "back to top" button when scrolling
-        window.addEventListener('scroll', function() {
-            const backToTopButton = document.getElementById('backToTop');
-            if (window.scrollY > 200) { // Mostrar botão se o usuário rolar para baixo mais de 200px
-                backToTopButton.style.display = 'block';
-            } else {
-                backToTopButton.style.display = 'none'; // Ocultar botão se não estiver rolando
-            }
-        });
     </script>
 </body>
 </html>
