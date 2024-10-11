@@ -4,89 +4,117 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MOTOR DE BUSCA CNN</title>
+    <link href="https://fonts.googleapis.com/css2?family=Merryweather:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: Tahoma, sans-serif;
             margin: 20px;
-            background-color: white; /* Fundo branco da página */
-            color: #333; /* Cor do texto mais escura */
+            background-color: white;
+            color: #333;
         }
         #loading {
             color: #005A9C;
             margin-top: 20px;
             font-weight: bold;
-            font-size: 20px; /* Tamanho da fonte aumentado */
-            text-align: left; /* Alinhamento à esquerda */
-            animation: neon 1.5s infinite alternate; /* Efeito neon */
-            opacity: 1; /* Iniciar com opacidade 1 */
-            transition: opacity 0.5s ease; /* Transição suave de opacidade */
+            font-size: 20px;
+            text-align: left;
+            opacity: 1;
+            transition: opacity 0.5s ease;
+            animation: blink 1.5s infinite;
         }
-        @keyframes neon {
-            0% {
-                text-shadow: 0 0 5px #005A9C, 0 0 10px #005A9C, 0 0 15px #0076CE, 0 0 20px #0076CE;
+        @keyframes blink {
+            0%, 100% {
+                opacity: 1;
             }
-            100% {
-                text-shadow: 0 0 10px #005A9C, 0 0 20px #005A9C, 0 0 30px #0076CE, 0 0 40px #0076CE;
+            50% {
+                opacity: 0.5;
             }
         }
         #header {
-            font-size: 24px; /* Tamanho da fonte aumentado */
-            margin-bottom: 5px;
+            margin-bottom: 0px;
             font-weight: bold;
-            color: #0076CE;
-            display: none; /* Ocultar inicialmente */
+            color: #007bff;
+            display: none;
+            text-align: left; /* Alinhar o cabeçalho à esquerda */
+            padding-left: 10px;
         }
         #link {
-            font-size: 14px; /* Tamanho da fonte aumentado */
+            font-size: 14px;
             margin-bottom: 20px;
-            display: none; /* Ocultar inicialmente */
+            display: none;
+            text-align: left; /* Alinhar o link à esquerda */
         }
         #wordInput {
             padding: 10px;
-            border: 2px solid #007bff; /* Borda azul */
-            border-radius: 5px; /* Bordas arredondadas */
-            width: calc(100% - 22px); /* Largura total menos padding */
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra suave */
+            border: 2px solid #007bff;
+            border-radius: 5px;
+            width: 100%; /* Barra de pesquisa a toda a largura */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-top: 10px;
+            text-align: left; /* Alinhar texto à esquerda */
             display: none; /* Ocultar inicialmente */
-            margin-top: 10px; /* Espaçamento acima da barra de pesquisa */
         }
         #searchButton {
             padding: 10px 15px;
             border: none;
             border-radius: 5px;
-            background-color: #007bff; /* Botão azul */
-            color: white; /* Texto branco */
+            background-color: #007bff;
+            color: white;
             cursor: pointer;
-            margin-left: 5px;
-            transition: background-color 0.3s; /* Transição suave */
+            margin-top: 5px; /* Espaçamento acima do botão */
+            transition: background-color 0.3s;
             display: none; /* Ocultar inicialmente */
+            font-family: Tahoma, sans-serif;
+            text-align: left; /* Alinhar botão à esquerda */
         }
         #output {
             margin-top: 20px;
+            font-family: Tahoma, sans-serif;
+            text-align: left; /* Alinhamento à esquerda dos resultados */
         }
         .result {
-            background-color: #F0F0F0; /* Fundo cinza para resultados */
-            border: 1px solid #ddd; /* Borda leve */
-            border-radius: 5px; /* Bordas arredondadas */
+            background-color: #F7F7F7;
+            border: 1px solid #ddd;
+            border-radius: 5px;
             padding: 10px;
-            margin-bottom: 10px; /* Espaçamento entre resultados */
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2); /* Sombra suave */
+            margin-bottom: 10px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            font-family: Tahoma, sans-serif;
         }
         .highlight {
             background-color: yellow;
-            font-weight: bold; /* Destacar a palavra encontrada */
+            font-weight: bold;
+            font-family: Tahoma, sans-serif;
         }
         #endOfResults {
-            display: none; /* Ocultar inicialmente */
+            display: none;
             margin-top: 20px;
-            font-size: 12px; /* Tamanho da fonte 12 */
+            font-size: 12px;
+            font-family: Tahoma, sans-serif;
+        }
+        .viewPdfButton {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            background-color: #cce5ff;
+            color: #007bff;
+            cursor: pointer;
+            font-size: 12px;
+            margin-top: 10px;
+            display: inline-block;
         }
     </style>
 </head>
 <body>
-    <div id="loading">MOTOR DE BUSCA A CARREGAR... AGUARDE UM POUCO (É RÁPIDO)</div>
-    <div id="header">OE 2025 • MOTOR DE BUSCA CNN PORTUGAL</div>
-    <div id="link">pode ver AQUI o documento na íntegra</div>
+    <div id="loading" style="border-bottom:5px solid #A9A9A9;text-align:left;font-weight:normal">
+        <span style="font-size:18px;color:#A9A9A9">MOTOR DE BUSCA A CARREGAR...</span> <br/>
+        <span style="font-size:13px;color:#007bff;">AGUARDE UM POUCO (É RÁPIDO)</span>
+    </div>
+    <div id="header">
+        <span style="font-size:18px;color:#007bff;">OE 2025 • MOTOR DE BUSCA</span><br/>
+        <span style="font-weight:normal;font-size:9px;color:#A9A9A9;">POR CNN PORTUGAL • VEJA <a href="https://gogapo.github.io/cnn/relatorio_OE.pdf" target="_blank">AQUI</a> O OE NA ÍNTEGRA</span>
+    </div>
+    <div id="link"></div><br/>
     <input type="text" id="wordInput" placeholder="escreva aqui" />
     <button id="searchButton">pesquisar</button>
     <div id="output"></div>
@@ -130,8 +158,8 @@
                 const page = await pdfDoc.getPage(i);
                 const content = await page.getTextContent();
                 const strings = content.items.map(item => item.str);
-                const pageText = strings.join(' '); // Join page text
-                const sentences = pageText.split(/(?<=[.?!])\s+/); // Split by sentence
+                const pageText = strings.join(' ');
+                const sentences = pageText.split(/(?<=[.?!])\s+/);
                 pageSentences.push(sentences); // Store sentences for the page
             }
         }
@@ -144,7 +172,7 @@
         // Perform the search when Enter is pressed in the input field
         document.getElementById('wordInput').addEventListener('keydown', function(event) {
             if (event.key === 'Enter') {
-                event.preventDefault();  // Prevent the default action for Enter key (form submission, etc.)
+                event.preventDefault();  
                 performSearch();
             }
         });
@@ -190,24 +218,27 @@
             if (results.length > 0) {
                 results.forEach(result => {
                     const resultDiv = document.createElement('div');
-                    resultDiv.className = 'result';
-                    resultDiv.innerHTML = `
-                        ${result.sentence.replace(new RegExp(word, 'gi'), (match) => `<span class="highlight">${match}</span>`)} 
-                        <span style="font-size: 12px; color: gray;">(retirado da página ${result.pageIndex + 1} do OE 2025)</span> 
-                        <button onclick="openPdf(${result.pageIndex})" style="margin-left: 10px; padding: 5px; font-size: 10px;">Mostrar no PDF</button>`;
-                    outputDiv.appendChild(resultDiv);
-                });
-                document.getElementById('endOfResults').style.display = 'block'; // Show end of results
-            } else {
-                outputDiv.innerHTML = '<div style="color: red;">Nenhum resultado encontrado.</div>';
-                document.getElementById('endOfResults').style.display = 'none'; // Hide end of results
-            }
-        }
+                    resultDiv.classList.add('result');
 
-        // Open the PDF at a specific page
-        function openPdf(pageIndex) {
-            const url = `${pdfUrl}#page=${pageIndex + 1}`; // Create URL for specific page
-            window.open(url, '_blank'); // Open in new tab
+                    const highlightedSentence = result.sentence.replace(new RegExp(word, 'gi'), match => `<span class="highlight">${match}</span>`);
+                    resultDiv.innerHTML = `<p>${highlightedSentence}</p><p style="font-size:11px;color:#A9A9A9;">retirado da página ${result.pageIndex + 1} do OE 2025</p>`;
+
+                    const viewPdfButton = document.createElement('button');
+                    viewPdfButton.classList.add('viewPdfButton');
+                    viewPdfButton.textContent = 'Ver no PDF';
+                    viewPdfButton.addEventListener('click', () => {
+                        const pageNumber = result.pageIndex + 1;
+                        window.open(`${pdfUrl}#page=${pageNumber}`, '_blank');
+                    });
+
+                    resultDiv.appendChild(viewPdfButton); // Add the button to the result div
+                    outputDiv.appendChild(resultDiv); // Append result to output
+                });
+                document.getElementById('endOfResults').style.display = 'block'; // Show end of results message
+            } else {
+                outputDiv.innerHTML = '<p>Nenhum resultado encontrado.</p>';
+                document.getElementById('endOfResults').style.display = 'none'; // Hide end of results message
+            }
         }
     </script>
 </body>
