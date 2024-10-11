@@ -15,7 +15,7 @@
             font-size: 15px;
             margin-bottom: 5px;
             font-weight: bold;
-            color:#0076CE;
+            color: #0076CE;
         }
         #link {
             font-size: 10px;
@@ -90,8 +90,8 @@
     <div id="loading"><span style="font-size:11px;color:#9e1b32;">! MOTOR DE BUSCA A CARREGAR </span><br/><span style="font-size:15px;color:#9e1b32;">comece a pesquisar só depois de esta mensagem desaparecer</span></div>
     <div id="output"></div>
     <div id="endOfResults">
-        FIM DE RESULTADOS
-        <button id="backToTop" onclick="scrollToTop()">voltar ao início</button>
+        <span style="font-size:12px">FIM DE RESULTADOS</span>
+        <a id="backToTop" href="#topAnchor" style="display: inline-block;">voltar ao início</a>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
@@ -188,35 +188,49 @@
                     resultDiv.innerHTML = `
                         ${result.sentence.replace(new RegExp(word, 'gi'), (match) => `<span class="highlight">${match}</span>`)} 
                         <span style="font-size: 12px; color: gray;">(retirado da página ${result.pageIndex + 1} do OE 2025)</span> 
-                        <button onclick="showContext('${result.sentence}', ${result.pageIndex})">mostrar contexto</button>
+                        <button onclick="showContext(${result.pageIndex}, ${results.indexOf(result)})">mostrar contexto</button>
                     `; // Highlight the word and add page reference
                     outputDiv.appendChild(resultDiv);
                 });
 
                 // Show "FIM DE RESULTADOS" only if there are results
                 document.getElementById('endOfResults').style.display = 'block';
+                document.getElementById('backToTop').style.display = 'block'; // Show the button
             } else {
                 outputDiv.innerHTML = 'Nenhum resultado encontrado.';
-                document.getElementById('endOfResults').style.display = 'none';
+                document.getElementById('endOfResults').style.display = 'none'; // Hide if no results
+                document.getElementById('backToTop').style.display = 'none'; // Hide button if no results
+            }
+        }
+
+        // Show context of the result when the button is clicked
+        function showContext(pageIndex, resultIndex) {
+            const sentences = pageSentences[pageIndex];
+            const context = [];
+
+            // Get the previous, current, and next sentences
+            if (resultIndex > 0) {
+                context.push(sentences[resultIndex - 1]); // Previous sentence
+            }
+            context.push(sentences[resultIndex]); // Current sentence
+            if (resultIndex < sentences.length - 1) {
+                context.push(sentences[resultIndex + 1]); // Next sentence
             }
 
-            // Show the back to top button if results are displayed
+            // Display context with a blank line between paragraphs
+            alert(`Contexto:\n\n${context.join('\n\n')}\n\n(da página ${pageIndex + 1})`);
+        }
+
+        // Show or hide "Voltar ao início" button based on scroll position
+        window.onscroll = function() {
             const backToTopButton = document.getElementById('backToTop');
-            backToTopButton.style.display = results.length > 0 ? 'block' : 'none';
-        }
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                backToTopButton.style.display = 'block'; // Show button
+            } else {
+                backToTopButton.style.display = 'none'; // Hide button
+            }
+        };
 
-        // Show context for the selected result
-        function showContext(sentence, pageIndex) {
-            const previousSentence = pageSentences[pageIndex][Math.max(0, pageSentences[pageIndex].indexOf(sentence) - 1)];
-            const nextSentence = pageSentences[pageIndex][Math.min(pageSentences[pageIndex].length - 1, pageSentences[pageIndex].indexOf(sentence) + 1)];
-            const context = `${previousSentence || ''}\n\n${sentence}\n\n${nextSentence || ''}`; // Formatting with line breaks
-            alert(context);
-        }
-
-        // Scroll to the top of the page
-        function scrollToTop() {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
     </script>
 </body>
 </html>
