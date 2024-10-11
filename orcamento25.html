@@ -67,19 +67,6 @@
             display: none; /* Ocultar inicialmente */
             margin-top: 20px;
         }
-        #backToTop {
-            display: none; /* Ocultar inicialmente */
-            padding: 10px 15px;
-            border: none;
-            border-radius: 5px;
-            background-color: #007bff; /* Azul para o botão, igual ao botão "Pesquisar" */
-            color: white; /* Texto branco */
-            cursor: pointer;
-            margin-top: 10px;
-        }
-        #backToTop:hover {
-            background-color: #0056b3; /* Azul mais escuro no hover, igual ao botão "Pesquisar" */
-        }
     </style>
 </head>
 <body>
@@ -91,7 +78,6 @@
     <div id="output"></div>
     <div id="endOfResults">
         <span style="font-size:12px">FIM DE RESULTADOS</span>
-        <a id="backToTop" href="#topAnchor" style="display: inline-block;">voltar ao início</a>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
@@ -188,36 +174,15 @@
                     resultDiv.innerHTML = `
                         ${result.sentence.replace(new RegExp(word, 'gi'), (match) => `<span class="highlight">${match}</span>`)} 
                         <span style="font-size: 12px; color: gray;">(retirado da página ${result.pageIndex + 1} do OE 2025)</span> 
-                        <button onclick="showContext(${result.pageIndex}, ${results.indexOf(result)})">mostrar contexto</button>
                         <button onclick="openPdf(${result.pageIndex})" style="margin-left: 5px;">mostrar no PDF</button>
                     `; // Highlight the word found
                     outputDiv.appendChild(resultDiv);
                 });
                 document.getElementById('endOfResults').style.display = 'block'; // Show end of results
-                document.getElementById('backToTop').style.display = 'block'; // Show back to top button
             } else {
                 outputDiv.innerHTML = 'Nenhum resultado encontrado.';
                 document.getElementById('endOfResults').style.display = 'none'; // Hide if no results
-                document.getElementById('backToTop').style.display = 'none'; // Hide button if no results
             }
-        }
-
-        // Show context of the result when the button is clicked
-        function showContext(pageIndex, resultIndex) {
-            const sentences = pageSentences[pageIndex];
-            const context = [];
-
-            // Get the previous, current, and next sentences
-            if (resultIndex > 0) {
-                context.push(sentences[resultIndex - 1]); // Previous sentence
-            }
-            context.push(sentences[resultIndex]); // Current sentence
-            if (resultIndex < sentences.length - 1) {
-                context.push(sentences[resultIndex + 1]); // Next sentence
-            }
-
-            // Display context with a blank line between paragraphs
-            alert(`Contexto:\n\n${context.join('\n\n')}\n\n(da página ${pageIndex + 1})`);
         }
 
         // Function to open PDF at the specific page
@@ -227,14 +192,9 @@
             window.open(pdfEmbedUrl, '_blank'); // Open in new tab
         }
 
-        // Show or hide "Voltar ao início" button based on scroll position
+        // Show or hide button based on scroll position
         window.onscroll = function() {
-            const backToTopButton = document.getElementById('backToTop');
-            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
-                backToTopButton.style.display = 'block'; // Show button
-            } else {
-                backToTopButton.style.display = 'none'; // Hide button
-            }
+            // No backToTop button logic needed anymore
         };
     </script>
 </body>
