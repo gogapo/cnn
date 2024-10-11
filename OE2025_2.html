@@ -4,59 +4,75 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PDF Word Finder</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet"> <!-- Fonte Google -->
     <style>
         body {
-            font-family: 'Roboto', sans-serif; /* Fonte moderna */
-            margin: 20px;
-            background-color: white; /* Fundo branco */
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f7f7f7; /* Fundo suave */
             color: #333; /* Cor do texto */
+        }
+        header {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+        h1 {
+            font-size: 24px; /* Título maior */
+            margin: 0; /* Sem margem */
+            color: #0071e3; /* Azul Apple */
+        }
+        .subtitle {
+            font-size: 14px; /* Fonte menor para o subtítulo */
+            color: #555; /* Cor do subtítulo */
+        }
+        .search-container {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        #wordInput {
+            flex: 1;
+            padding: 10px;
+            font-size: 16px; /* Fonte maior */
+            border: 1px solid #ccc;
+            border-radius: 5px; /* Bordas arredondadas */
+            margin-right: 10px; /* Espaço entre o campo e o botão */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra sutil */
+        }
+        #searchButton {
+            padding: 10px 20px;
+            font-size: 16px;
+            color: white;
+            background-color: #0071e3; /* Azul Apple */
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s; /* Efeito de transição */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra sutil */
+        }
+        #searchButton:hover {
+            background-color: #005bb5; /* Azul mais escuro ao passar o mouse */
+        }
+        #loading {
+            color: #ff3b30; /* Vermelho Apple */
+            margin-top: 20px;
+            font-weight: bold; /* Negrito */
+            margin-bottom: 20px; /* Espaço adicional */
+            font-size: 14px; /* Fonte um pouco maior */
         }
         #output {
             margin-top: 20px;
+            padding: 10px;
+            background-color: white; /* Fundo branco para o output */
+            border-radius: 5px; /* Bordas arredondadas */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra sutil */
         }
         .highlight {
-            background-color: #f1c40f; /* Amarelo suave para destaque */
+            background-color: #ffeb3b; /* Amarelo claro */
+            font-weight: bold; /* Negrito */
         }
         .context {
             margin-left: 20px;
             color: gray;
-        }
-        #loading {
-            color: #e74c3c; /* Vermelho */
-            margin-top: 20px;
-            font-weight: bold; /* Negrito */
-            margin-bottom: 20px; /* Espaço adicional */
-        }
-        .search-container {
-            margin-bottom: 20px;
-            display: flex; /* Flexbox para alinhamento */
-            align-items: center; /* Centralizar verticalmente */
-        }
-        #wordInput {
-            flex: 1; /* Ocupa o espaço disponível */
-            padding: 10px;
-            border: 1px solid #ccc; /* Bordas suaves */
-            border-radius: 4px; /* Bordas arredondadas */
-            font-size: 16px; /* Tamanho da fonte */
-            transition: border-color 0.3s; /* Transição suave */
-        }
-        #wordInput:focus {
-            border-color: #3498db; /* Cor ao focar */
-            outline: none; /* Remover contorno padrão */
-        }
-        #searchButton {
-            padding: 10px 15px; /* Tamanho do botão */
-            background-color: #3498db; /* Cor do botão */
-            color: white; /* Cor do texto */
-            border: none; /* Sem bordas */
-            border-radius: 4px; /* Bordas arredondadas */
-            cursor: pointer; /* Mostrar cursor de mão */
-            margin-left: 10px; /* Espaço à esquerda */
-            transition: background-color 0.3s; /* Transição suave */
-        }
-        #searchButton:hover {
-            background-color: #2980b9; /* Cor ao passar o mouse */
         }
         .pagination {
             display: flex;
@@ -67,29 +83,33 @@
         .page-number {
             margin: 0 5px; /* Espaço entre os números de página */
             cursor: pointer;
-            font-weight: 500; /* Peso da fonte */
-            color: #3498db; /* Cor dos números */
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .page-number:hover {
+            background-color: #e1e1e1; /* Efeito ao passar o mouse */
         }
         .active {
             font-weight: bold;
-            text-decoration: underline; /* Sublinha a página ativa */
+            background-color: #0071e3; /* Azul Apple */
+            color: white; /* Texto branco */
         }
         .context-button {
-            font-size: 12px; /* Aumentar o tamanho dos botões de contexto */
+            font-size: 10px; /* Botões de contexto menores */
             margin-left: 10px;
-            background-color: #ecf0f1; /* Fundo suave */
-            border: none; /* Sem bordas */
-            border-radius: 4px; /* Bordas arredondadas */
-            padding: 5px 8px; /* Tamanho do botão */
-            cursor: pointer; /* Mostrar cursor de mão */
-            transition: background-color 0.3s; /* Transição suave */
+            color: #0071e3; /* Azul Apple */
+            background: none;
+            border: none;
+            cursor: pointer;
+            text-decoration: underline; /* Texto sublinhado */
         }
         .context-button:hover {
-            background-color: #bdc3c7; /* Cor ao passar o mouse */
+            color: #005bb5; /* Azul mais escuro ao passar o mouse */
         }
         @media (max-width: 600px) {
             body {
-                margin: 10px; /* Menos margem em dispositivos móveis */
+                padding: 10px; /* Menos margem em dispositivos móveis */
             }
             #wordInput {
                 width: 100%; /* Campo de pesquisa ocupa 100% da largura */
@@ -98,13 +118,16 @@
     </style>
 </head>
 <body>
-    <div style="font-size: 18px; font-weight: 500; text-align: left;">OE 2025 | MOTOR DE BUSCA CNN PORTUGAL</div>
-    <div style="font-size: 10px; text-align: left;">pode ver <a href="https://gogapo.github.io/cnn/relatorio_OE.pdf" target="_blank" style="color: #3498db; text-decoration: underline;">AQUI</a> o documento na íntegra</div>
-    <br />
+    <header>
+        <h1>OE 2025 | MOTOR DE BUSCA CNN PORTUGAL</h1>
+        <div class="subtitle">pode ver <a href="https://gogapo.github.io/cnn/relatorio_OE.pdf" target="_blank" style="color: #0071e3; text-decoration: underline;">AQUI</a> o documento na íntegra</div>
+    </header>
+    
     <div class="search-container">
         <input type="text" id="wordInput" placeholder="escreva aqui" />
         <button id="searchButton">pesquisar</button>
     </div>
+    
     <div id="loading">A carregar o motor de busca, aguarde um pouco (é rápido). Comece a pesquisar só depois de esta mensagem desaparecer</div>
     <div id="output"></div>
 
@@ -189,7 +212,7 @@
             pageSentences.forEach((sentences, pageIndex) => {
                 sentences.forEach((sentence) => {
                     if (sentence.toLowerCase().includes(wordLower)) {
-                        matches.push({ sentence, page: pageIndex + 1 }); // Store sentence with page number
+                        matches.push({ sentence, page: pageIndex + 1 }); // Store sentence and its page number
                     }
                 });
             });
@@ -197,86 +220,82 @@
             return matches;
         }
 
-        // Display search results with the option to view the context
+        // Display the search results
         function displayResults(results, word) {
-            const output = document.getElementById('output');
-            output.innerHTML = '';
+            const outputDiv = document.getElementById('output');
+            outputDiv.innerHTML = ''; // Clear previous results
 
             if (results.length === 0) {
-                output.innerHTML = '<p>Nenhum resultado encontrado para "' + word + '"</p>';
+                outputDiv.innerHTML = '<p>Nenhum resultado encontrado.</p>';
                 return;
             }
 
-            // Pagination logic
             const totalPages = Math.ceil(results.length / resultsPerPage);
-            const startIndex = (currentPage - 1) * resultsPerPage;
-            const endIndex = Math.min(startIndex + resultsPerPage, results.length);
-            const currentResults = results.slice(startIndex, endIndex);
+            currentPage = 1; // Reset current page on new search
+            renderResultsForCurrentPage(results, word);
 
-            currentResults.forEach((result, index) => {
-                const context = getContextForSentence(result.sentence, word);
-                const resultElement = document.createElement('div');
-                resultElement.innerHTML = `
-                    <div class="result">
-                        <span class="highlight">${result.sentence.replace(new RegExp(`(${word})`, 'gi'), '<strong>$1</strong>')}</span>
-                        <span class="context"> (Página ${result.page}) ${context}</span>
-                    </div>
-                `;
-                output.appendChild(resultElement);
-            });
-
-            // Pagination controls
+            // Create pagination controls
             const paginationDiv = document.createElement('div');
-            paginationDiv.className = 'pagination';
+            paginationDiv.classList.add('pagination');
 
-            if (currentPage > 1) {
-                const previousButton = document.createElement('span');
-                previousButton.className = 'page-number';
-                previousButton.textContent = 'Anterior';
-                previousButton.onclick = () => {
+            // Create previous button
+            const prevButton = document.createElement('div');
+            prevButton.textContent = 'Anterior';
+            prevButton.classList.add('page-number');
+            prevButton.onclick = function() {
+                if (currentPage > 1) {
                     currentPage--;
-                    displayResults(results, word); // Re-display results
-                    window.scrollTo(0, 0); // Scroll to top
-                };
-                paginationDiv.appendChild(previousButton);
-            }
+                    renderResultsForCurrentPage(results, word);
+                }
+            };
+            paginationDiv.appendChild(prevButton);
 
+            // Create page numbers
             for (let i = 1; i <= totalPages; i++) {
-                const pageNumber = document.createElement('span');
-                pageNumber.className = `page-number ${currentPage === i ? 'active' : ''}`;
+                const pageNumber = document.createElement('div');
                 pageNumber.textContent = i;
-                pageNumber.onclick = () => {
+                pageNumber.classList.add('page-number');
+                if (i === currentPage) {
+                    pageNumber.classList.add('active'); // Highlight the active page number
+                }
+                pageNumber.onclick = function() {
                     currentPage = i;
-                    displayResults(results, word); // Re-display results
-                    window.scrollTo(0, 0); // Scroll to top
+                    renderResultsForCurrentPage(results, word);
                 };
                 paginationDiv.appendChild(pageNumber);
             }
 
-            if (currentPage < totalPages) {
-                const nextButton = document.createElement('span');
-                nextButton.className = 'page-number';
-                nextButton.textContent = 'Próximo';
-                nextButton.onclick = () => {
+            // Create next button
+            const nextButton = document.createElement('div');
+            nextButton.textContent = 'Próximo';
+            nextButton.classList.add('page-number');
+            nextButton.onclick = function() {
+                if (currentPage < totalPages) {
                     currentPage++;
-                    displayResults(results, word); // Re-display results
-                    window.scrollTo(0, 0); // Scroll to top
-                };
-                paginationDiv.appendChild(nextButton);
-            }
+                    renderResultsForCurrentPage(results, word);
+                }
+            };
+            paginationDiv.appendChild(nextButton);
 
-            output.appendChild(paginationDiv);
+            outputDiv.appendChild(paginationDiv);
         }
 
-        // Get context around the sentence
-        function getContextForSentence(sentence, word) {
-            const words = sentence.split(' ');
-            const wordIndex = words.findIndex(w => w.toLowerCase() === word.toLowerCase());
-            if (wordIndex < 0) return '';
+        // Render results for the current page
+        function renderResultsForCurrentPage(results, word) {
+            const outputDiv = document.getElementById('output');
+            outputDiv.innerHTML = ''; // Clear previous results
 
-            const start = Math.max(wordIndex - 2, 0); // 2 words before
-            const end = Math.min(wordIndex + 3, words.length); // 2 words after
-            return '... ' + words.slice(start, end).join(' ') + ' ...'; // Join context words
+            const startIndex = (currentPage - 1) * resultsPerPage;
+            const endIndex = Math.min(startIndex + resultsPerPage, results.length);
+
+            for (let i = startIndex; i < endIndex; i++) {
+                const result = results[i];
+                const highlightedSentence = result.sentence.replace(new RegExp(`(${word})`, 'gi'), '<span class="highlight">$1</span>');
+                const context = `... ${result.sentence} ...`; // Provide context
+                const contextDiv = document.createElement('div');
+                contextDiv.innerHTML = highlightedSentence + `<span class="context">${context}</span>`;
+                outputDiv.appendChild(contextDiv);
+            }
         }
     </script>
 </body>
