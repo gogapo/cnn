@@ -6,9 +6,48 @@
     <title>PDF Word Finder</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: white; /* Fundo branco */
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #fff; /* Fundo branco */
+        }
+        header {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+        h1 {
+            font-size: 24px;
+            margin: 0;
+        }
+        .sub-header {
+            font-size: 12px;
+            color: #007bff; /* Azul similar ao do Google */
+            margin: 5px 0;
+        }
+        #wordInput {
+            width: 100%;
+            max-width: 600px; /* Limitar a largura do campo de pesquisa */
+            padding: 10px;
+            border: 1px solid #ccc; /* Borda cinza */
+            border-radius: 24px; /* Cantos arredondados */
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2); /* Sombra leve */
+            margin-bottom: 10px; /* Espaçamento inferior */
+            font-size: 16px;
+        }
+        #searchButton {
+            padding: 10px 20px;
+            background-color: #007bff; /* Azul semelhante ao do Google */
+            color: white;
+            border: none;
+            border-radius: 24px; /* Cantos arredondados */
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s; /* Transição suave */
+        }
+        #searchButton:hover {
+            background-color: #0056b3; /* Azul mais escuro ao passar o mouse */
         }
         #output {
             margin-top: 20px;
@@ -23,47 +62,18 @@
         #loading {
             color: red;
             margin-top: 20px;
-            font-weight: bold; /* Negrito */
-            margin-bottom: 20px; /* Espaço adicional */
-        }
-        .search-container {
-            margin-bottom: 20px;
-        }
-        .pagination {
-            display: flex;
-            align-items: center;
-            justify-content: left; /* Alinhamento à esquerda */
-            margin-top: 10px;
-        }
-        .page-number {
-            margin: 0 5px; /* Espaço entre os números de página */
-            cursor: pointer;
-        }
-        .active {
-            font-weight: bold;
-        }
-        .context-button {
-            font-size: 10px; /* Botões de contexto menores */
-            margin-left: 10px;
-        }
-        @media (max-width: 600px) {
-            body {
-                margin: 10px; /* Menos margem em dispositivos móveis */
-            }
-            #wordInput {
-                width: 100%; /* Campo de pesquisa ocupa 100% da largura */
-            }
         }
     </style>
 </head>
 <body>
-    <div style="font-size:15px; text-align: left;">OE 2025 | MOTOR DE BUSCA CNN PORTUGAL</div>
-    <div style="font-size:8px; text-align: left;">pode ver <a href="https://gogapo.github.io/cnn/relatorio_OE.pdf" target="_blank">AQUI</a> o documento na íntegra</div>
-    <br />
-    <div class="search-container">
-        <input type="text" id="wordInput" placeholder="escreva aqui" />
-        <button id="searchButton">pesquisar</button>
-    </div>
+    <header>
+        <h1>OE 2025 | MOTOR DE BUSCA CNN PORTUGAL</h1>
+        <div class="sub-header">pode ver <a href="https://gogapo.github.io/cnn/relatorio_OE.pdf" target="_blank">AQUI</a> o documento na íntegra</div>
+    </header>
+    
+    <input type="text" id="wordInput" placeholder="escreva aqui" />
+    <button id="searchButton">pesquisar</button>
+    
     <div id="loading">A carregar a informação, aguarde um pouco. Comece a pesquisar só depois de esta mensagem desaparecer</div>
     <div id="output"></div>
 
@@ -74,8 +84,6 @@
         let pageSentences = []; // Array to hold sentences for each page
         let isLoading = true; // To track loading status
         let hasSearched = false; // To track if a search has been performed
-        let currentPage = 1; // Track current page of results
-        const resultsPerPage = 10; // Set the number of results per page
 
         // Load the PDF from the provided URL
         const pdfUrl = "https://gogapo.github.io/cnn/relatorio_OE.pdf";
@@ -136,8 +144,6 @@
             } else {
                 document.getElementById('output').innerHTML = '<p>Por favor, insira uma palavra para pesquisar</p>';
             }
-            // Scroll to top of the page
-            window.scrollTo(0, 0);
         }
 
         // Find occurrences of the word in the text
@@ -166,62 +172,20 @@
                 return;
             }
 
-            const totalPages = Math.ceil(results.length / resultsPerPage);
-            const start = (currentPage - 1) * resultsPerPage;
-            const end = Math.min(start + resultsPerPage, results.length);
-            const paginatedResults = results.slice(start, end);
-
-            paginatedResults.forEach((result) => {
+            results.forEach((result) => {
                 const sentenceHtml = result.sentence.replace(new RegExp(`(${word})`, 'gi'), '<span class="highlight">$1</span>');
-                const contextButton = `<button class="context-button" onclick="showContext('${result.sentence}')">mostrar contexto</button>`;
-                output.innerHTML += `<p style="margin-bottom: 10px;">${sentenceHtml} (<i>Página ${result.page} do OE 2025</i>) ${contextButton}</p>`;
+                const contextButton = `<button onclick="showContext('${result.sentence}')">mostrar contexto (se disponível)</button>`;
+                output.innerHTML += `<p>${sentenceHtml} (<i>Página ${result.page} do OE 2025</i>) ${contextButton}</p>`;
             });
-
-            const pagination = createPagination(totalPages);
-            output.appendChild(pagination);
         }
 
-        // Create pagination elements
-        function createPagination(totalPages) {
-            const pagination = document.createElement('div');
-            pagination.className = 'pagination';
-
-            if (currentPage > 1) {
-                const prevButton = document.createElement('button');
-                prevButton.textContent = 'Anterior';
-                prevButton.addEventListener('click', () => {
-                    currentPage--;
-                    performSearch();
-                });
-                pagination.appendChild(prevButton);
-            }
-
-            for (let i = 1; i <= totalPages; i++) {
-                const pageButton = document.createElement('span');
-                pageButton.textContent = i;
-                pageButton.className = `page-number ${i === currentPage ? 'active' : ''}`;
-                pageButton.addEventListener('click', () => {
-                    currentPage = i;
-                    performSearch();
-                });
-                pagination.appendChild(pageButton);
-            }
-
-            if (currentPage < totalPages) {
-                const nextButton = document.createElement('button');
-                nextButton.textContent = 'Próximo';
-                nextButton.addEventListener('click', () => {
-                    currentPage++;
-                    performSearch();
-                });
-                pagination.appendChild(nextButton);
-            }
-
-            return pagination;
-        }
-
+        // Show context around the sentence where the word was found
         function showContext(sentence) {
-            alert("Contexto da frase: " + sentence);
+            const sentences = pageSentences.flat(); // Flatten the array of sentences
+            const index = sentences.findIndex(s => s.trim() === sentence.trim()); // Find the exact match
+            const start = Math.max(0, index - 2); // Get two sentences before
+            const end = Math.min(sentences.length, index + 3); // Get two sentences after
+            alert('Contexto: ' + sentences.slice(start, end).join(' '));
         }
     </script>
 </body>
