@@ -233,6 +233,31 @@
         function showContext(sentence) {
             alert(`Contexto: ${sentence}`); // Exibe o contexto em um alerta
         }
+
+        // Função para ajustar a altura do iframe
+        function adjustIframeHeight() {
+            const iframe = window.parent.document.getElementById('myIframe');
+            iframe.style.height = document.body.scrollHeight + 'px';
+        }
+
+        // Chamar a função ao carregar a página
+        window.onload = adjustIframeHeight;
+        // Ajustar a altura ao pesquisar e ao mudar de página
+        document.getElementById('searchButton').addEventListener('click', adjustIframeHeight);
+        document.getElementById('wordInput').addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                adjustIframeHeight();
+            }
+        });
+
+        // Chamando a função sempre que a página mudar
+        function changePage(page) {
+            currentPage = page;
+            performSearch();
+            window.scrollTo(0, 0); // Rolar para o topo
+            adjustIframeHeight(); // Ajustar altura do iframe
+        }
     </script>
 </body>
 </html>
