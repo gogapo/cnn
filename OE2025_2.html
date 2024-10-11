@@ -21,7 +21,7 @@
             color: gray;
         }
         #loading {
-            color: blue;
+            color: red;
             margin-top: 20px;
             font-weight: bold; /* Negrito */
             margin-bottom: 20px; /* Espaço adicional */
@@ -64,7 +64,7 @@
         <input type="text" id="wordInput" placeholder="escreva aqui" />
         <button id="searchButton">pesquisar</button>
     </div>
-    <div id="loading">A CARREGAR O MOTOR DE BUSCA, AGUARDE UM POUCO (É RÁPIDO). COMECE A PESQUISAR SÓ DEPOIS DE ESTA MENSAGEM DESAPARECER</div>
+    <div id="loading">A carregar o motor de busca, aguarde um pouco (é rápido). Comece a pesquisar só depois de esta mensagem desaparecer</div>
     <div id="output"></div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
@@ -86,7 +86,7 @@
             return extractTextFromPdf(); // Ensure we wait for text extraction to complete
         }).then(() => {
             isLoading = false; // Set loading to false when done
-            document.getElementById('loading').textContent = ‘pode começar a pesquisar; // Update loading message
+            document.getElementById('loading').textContent = 'PODE COMEÇAR A PESQUISAR'; // Update loading message
         }).catch(function(error) {
             console.error('Error loading PDF:', error);
             document.getElementById('loading').textContent = 'Erro ao carregar o PDF.';
