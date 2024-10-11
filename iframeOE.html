@@ -1,31 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDF Word Finder Iframe</title>
-    <style>
-        /* Estilo para o iframe */
-        #myIframe {
-            width: 100%;
-            border: none; /* Sem borda */
-            height: 600px; /* Altura fixa ou máxima inicial */
-            overflow: hidden; /* Sem rolagem no iframe */
-        }
-    </style>
-</head>
-<body>
-    <iframe id="myIframe" src="https://gogapo.github.io/cnn/orcamento25.html"></iframe>
 
-    <script>
-        const iframe = document.getElementById('myIframe');
+<p><iframe frameborder="0" height="70000" src="https://gogapo.github.io/cnn/orcamento25.html" width="100%"></iframe></p>
 
-        // Ajustar altura do iframe baseado na altura do documento carregado
-        iframe.onload = function() {
-            const body = iframe.contentWindow.document.body;
-            const height = body.scrollHeight + 40; // Adiciona um pouco de espaço extra
-            iframe.style.height = height + 'px'; // Ajustar altura do iframe
-        };
-    </script>
-</body>
-</html>
+ 
