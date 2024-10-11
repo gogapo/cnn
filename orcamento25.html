@@ -188,75 +188,79 @@
             const output = document.getElementById('output');
             const pagination = document.getElementById('pagination');
             output.innerHTML = '';
-            pagination.innerHTML = ''; // Clear pagination
+            pagination.innerHTML = ''; // Clear previous pagination
 
             if (results.length === 0) {
                 output.innerHTML = '<p>Nenhum resultado encontrado.</p>';
                 return;
             }
 
-            // Calculate total pages
             const totalPages = Math.ceil(results.length / resultsPerPage);
-            const startIndex = (currentPage - 1) * resultsPerPage;
-            const endIndex = Math.min(startIndex + resultsPerPage, results.length);
-            const currentResults = results.slice(startIndex, endIndex); // Get results for current page
+            const start = (currentPage - 1) * resultsPerPage;
+            const end = Math.min(start + resultsPerPage, results.length);
 
-            currentResults.forEach((result) => {
-                const sentenceHtml = result.sentence.replace(new RegExp(`(${word})`, 'gi'), '<span class="highlight">$1</span>');
-                const contextButton = `<button onclick="showContext('${result.sentence}')">mostrar contexto</button>`;
-                output.innerHTML += `<div class="result">${sentenceHtml} (<i>Página ${result.page} do OE 2025</i>) ${contextButton}</div>`;
-            });
+            for (let i = start; i < end; i++) {
+                const resultDiv = document.createElement('div');
+                resultDiv.className = 'result';
+                resultDiv.innerHTML = resultWithHighlight(results[i].sentence, word); // Highlight the searched word
+                const contextButton = document.createElement('button');
+                contextButton.textContent = 'Ver contexto';
+                contextButton.onclick = function() {
+                    showContext(results[i].page);
+                };
+                resultDiv.appendChild(contextButton);
+                output.appendChild(resultDiv);
+            }
 
             // Create pagination buttons
             if (currentPage > 1) {
-                pagination.innerHTML += `<button onclick="changePage(${currentPage - 1})">Anterior</button>`;
+                const prevButton = document.createElement('button');
+                prevButton.textContent = 'Anterior';
+                prevButton.onclick = function() {
+                    currentPage--;
+                    displayResults(results, word); // Re-display results for the new page
+                    window.scrollTo(0, 0); // Scroll to the top of the iframe
+                    window.parent.scrollTo(0, 0); // Scroll to the top of the parent page
+                };
+                pagination.appendChild(prevButton);
             }
 
             for (let i = 1; i <= totalPages; i++) {
-                const activeClass = (i === currentPage) ? 'active' : '';
-                pagination.innerHTML += `<button class="${activeClass}" onclick="changePage(${i})">${i}</button>`;
+                const pageButton = document.createElement('button');
+                pageButton.textContent = i;
+                pageButton.className = (i === currentPage) ? 'active' : '';
+                pageButton.onclick = function() {
+                    currentPage = i;
+                    displayResults(results, word); // Re-display results for the new page
+                    window.scrollTo(0, 0); // Scroll to the top of the iframe
+                    window.parent.scrollTo(0, 0); // Scroll to the top of the parent page
+                };
+                pagination.appendChild(pageButton);
             }
 
             if (currentPage < totalPages) {
-                pagination.innerHTML += `<button onclick="changePage(${currentPage + 1})">Próximo</button>`;
+                const nextButton = document.createElement('button');
+                nextButton.textContent = 'Próximo';
+                nextButton.onclick = function() {
+                    currentPage++;
+                    displayResults(results, word); // Re-display results for the new page
+                    window.scrollTo(0, 0); // Scroll to the top of the iframe
+                    window.parent.scrollTo(0, 0); // Scroll to the top of the parent page
+                };
+                pagination.appendChild(nextButton);
             }
         }
 
-        // Change the current page for pagination
-        function changePage(page) {
-            currentPage = page;
-            performSearch(); // Re-perform search to update displayed results
-            window.scrollTo(0, 0); // Scroll to the top of the page
+        // Highlight the searched word in the result sentence
+        function resultWithHighlight(sentence, word) {
+            const regex = new RegExp(`(${word})`, 'gi');
+            return sentence.replace(regex, '<span class="highlight">$1</span>'); // Highlight matches
         }
 
-        // Show the context of the highlighted sentence
-        function showContext(sentence) {
-            alert(`Contexto: ${sentence}`); // Exibe o contexto em um alerta
-        }
-
-        // Função para ajustar a altura do iframe
-        function adjustIframeHeight() {
-            const iframe = window.parent.document.getElementById('myIframe');
-            iframe.style.height = document.body.scrollHeight + 'px';
-        }
-
-        // Chamar a função ao carregar a página
-        window.onload = adjustIframeHeight;
-        // Ajustar a altura ao pesquisar e ao mudar de página
-        document.getElementById('searchButton').addEventListener('click', adjustIframeHeight);
-        document.getElementById('wordInput').addEventListener('keydown', function(event) {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                adjustIframeHeight();
-            }
-        });
-
-        // Chamando a função sempre que a página mudar
-        function changePage(page) {
-            currentPage = page;
-            performSearch();
-            window.scrollTo(0, 0); // Rolar para o topo
-            adjustIframeHeight(); // Ajustar altura do iframe
+        // Show context of the result from the specified page
+        function showContext(pageNumber) {
+            alert(`Mostrando contexto da página ${pageNumber}.`); // Implement context viewing logic as needed
+            // For now, it can just alert the user
         }
     </script>
 </body>
