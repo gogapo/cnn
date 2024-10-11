@@ -9,12 +9,13 @@
         #myIframe {
             width: 100%;
             border: none; /* Sem borda */
-            height: 100vh; /* Altura inicial do iframe */
+            height: 600px; /* Altura fixa ou máxima */
+            overflow: auto; /* Habilitar rolagem se necessário */
         }
     </style>
 </head>
 <body>
-    <iframe id="myIframe" src="https://gogapo.github.io/cnn/orcamento25.html" scrolling="no"></iframe>
+    <iframe id="myIframe" src="https://gogapo.github.io/cnn/orcamento25.html" scrolling="yes"></iframe>
 
     <script>
         const iframe = document.getElementById('myIframe');
@@ -22,7 +23,8 @@
         // Ajustar altura do iframe baseado na altura do documento carregado
         iframe.onload = function() {
             const body = iframe.contentWindow.document.body;
-            iframe.style.height = body.scrollHeight + 'px'; // Ajustar altura do iframe
+            const height = body.scrollHeight + 20; // Adiciona um pouco de espaço extra
+            iframe.style.height = height + 'px'; // Ajustar altura do iframe
         };
     </script>
 </body>
