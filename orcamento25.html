@@ -189,13 +189,12 @@
                         ${result.sentence.replace(new RegExp(word, 'gi'), (match) => `<span class="highlight">${match}</span>`)} 
                         <span style="font-size: 12px; color: gray;">(retirado da página ${result.pageIndex + 1} do OE 2025)</span> 
                         <button onclick="showContext(${result.pageIndex}, ${results.indexOf(result)})">mostrar contexto</button>
-                    `; // Highlight the word and add page reference
+                        <button onclick="openPdf(${result.pageIndex})" style="margin-left: 5px;">mostrar no PDF</button>
+                    `; // Highlight the word found
                     outputDiv.appendChild(resultDiv);
                 });
-
-                // Show "FIM DE RESULTADOS" only if there are results
-                document.getElementById('endOfResults').style.display = 'block';
-                document.getElementById('backToTop').style.display = 'block'; // Show the button
+                document.getElementById('endOfResults').style.display = 'block'; // Show end of results
+                document.getElementById('backToTop').style.display = 'block'; // Show back to top button
             } else {
                 outputDiv.innerHTML = 'Nenhum resultado encontrado.';
                 document.getElementById('endOfResults').style.display = 'none'; // Hide if no results
@@ -221,6 +220,13 @@
             alert(`Contexto:\n\n${context.join('\n\n')}\n\n(da página ${pageIndex + 1})`);
         }
 
+        // Function to open PDF at the specific page
+        function openPdf(pageIndex) {
+            const pageNumber = pageIndex + 1; // Convert index to page number
+            const pdfEmbedUrl = `${pdfUrl}#page=${pageNumber}`; // Append page number to PDF URL
+            window.open(pdfEmbedUrl, '_blank'); // Open in new tab
+        }
+
         // Show or hide "Voltar ao início" button based on scroll position
         window.onscroll = function() {
             const backToTopButton = document.getElementById('backToTop');
@@ -230,7 +236,6 @@
                 backToTopButton.style.display = 'none'; // Hide button
             }
         };
-
     </script>
 </body>
 </html>
