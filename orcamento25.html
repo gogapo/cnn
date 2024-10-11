@@ -61,8 +61,10 @@
             background-color: yellow;
             font-weight: bold; /* Destacar a palavra encontrada */
         }
-        .result button {
-            cursor: pointer; /* Adiciona o cursor de mão para botões de contexto */
+        #endOfResults {
+            margin-top: 20px;
+            font-weight: bold;
+            color: #007bff; /* Cor para a mensagem de fim de resultados */
         }
     </style>
 </head>
@@ -73,6 +75,7 @@
     <button id="searchButton">pesquisar</button>
     <div id="loading">!!!MOTOR DE BUSCA A CARREGAR!!! Comece a pesquisar só depois de esta mensagem desaparecer</div>
     <div id="output"></div>
+    <div id="endOfResults" style="display: none;">FIM DE RESULTADOS</div> <!-- Mensagem de fim de resultados -->
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
     <script>
@@ -161,7 +164,9 @@
         // Display search results with the option to view the context
         function displayResults(results, word) {
             const output = document.getElementById('output');
+            const endOfResults = document.getElementById('endOfResults');
             output.innerHTML = '';
+            endOfResults.style.display = 'none'; // Hide end of results message
 
             if (results.length === 0) {
                 output.innerHTML = '<p>Nenhum resultado encontrado.</p>';
@@ -173,6 +178,9 @@
                 const contextButton = `<button onclick="showContext('${result.sentence}')">mostrar contexto</button>`;
                 output.innerHTML += `<div class="result">${sentenceHtml} (<i>Página ${result.page} do OE 2025</i>) ${contextButton}</div>`;
             });
+
+            // Show the end of results message
+            endOfResults.style.display = 'block';
         }
 
         // Show the context of the highlighted sentence
