@@ -190,39 +190,50 @@
     }
 
     // Função para verificar o número de contribuinte
-    function verificarContribuinte() {
-        const numero = document.getElementById("contribuinte").value;
-        const message = document.getElementById("message");
-        const passwordWarning = document.querySelector(".password-warning");
+function verificarContribuinte() {
+    const numero = document.getElementById("contribuinte").value;
+    const message = document.getElementById("message");
+    const passwordWarning = document.querySelector(".password-warning");
 
-        if (numero.length !== 9 || isNaN(numero)) {
-            const digitsMissing = 9 - numero.length;
-            if (digitsMissing > 0) {
-                message.textContent = `Por favor, insira um número de 9 dígitos. Falta ${digitsMissing} ${digitsMissing === 1 ? 'dígito' : 'dígitos'}.`;
-            } else {
-                message.textContent = `Por favor, insira um número de 9 dígitos. Você inseriu ${Math.abs(digitsMissing)} ${Math.abs(digitsMissing) === 1 ? 'dígito' : 'dígitos'} a mais.`;
-            }
-            message.className = "error";
-            message.style.display = "block"; // Exibir mensagem de erro
-            passwordWarning.style.display = "none"; // Ocultar aviso de senha
-            document.getElementById("informacao").style.display = "none"; // Ocultar informações adicionais
-            return;
-        }
-
-        message.style.display = "block"; // Exibir mensagem
-        document.getElementById("informacao").style.display = "block"; // Mostrar informações adicionais
-        passwordWarning.style.display = "none"; // Ocultar aviso de senha inicialmente
-
-        if (numerosContribuintes.includes(numero)) {
-            message.innerHTML = "O número de contribuinte que pesquisou está incluído no ficheiro que está a circular com a fuga de dados (e que contém a password, além do número de contribuinte). Leia o texto em baixo para saber o que está em causa e tomar precauções para resolver o problema e evitar novos.";
-            message.className = "error";
-            passwordWarning.style.display = "block"; // Mostrar aviso de senha
-        } else {
-            message.innerHTML = "O número de contribuinte que pesquisou não está incluído no ficheiro que está a circular. De qualquer maneira, leia o texto em baixo para tomar precauções e evitar problemas.";
-            message.className = "success";
-            passwordWarning.style.display = "none"; // Ocultar aviso de senha
-        }
+    // Verifica se o número contém apenas dígitos
+    if (!/^\d*$/.test(numero)) {
+        message.textContent = "Por favor, insira apenas dígitos. Foram inseridos caracteres inválidos.";
+        message.className = "error";
+        message.style.display = "block"; // Exibir mensagem de erro
+        passwordWarning.style.display = "none"; // Ocultar aviso de senha
+        document.getElementById("informacao").style.display = "none"; // Ocultar informações adicionais
+        return;
     }
+
+    // Verifica se o número tem exatamente 9 dígitos
+    if (numero.length !== 9) {
+        const digitsMissing = 9 - numero.length;
+        if (digitsMissing > 0) {
+            message.textContent = `Por favor, insira um número de 9 dígitos. ${digitsMissing === 1 ? 'Falta' : 'Faltam'} ${digitsMissing} ${digitsMissing === 1 ? 'dígito' : 'dígitos'}.`;
+        } else {
+            message.textContent = `Por favor, insira um número de 9 dígitos. Você inseriu ${Math.abs(digitsMissing)} ${Math.abs(digitsMissing) === 1 ? 'dígito' : 'dígitos'} a mais.`;
+        }
+        message.className = "error";
+        message.style.display = "block"; // Exibir mensagem de erro
+        passwordWarning.style.display = "none"; // Ocultar aviso de senha
+        document.getElementById("informacao").style.display = "none"; // Ocultar informações adicionais
+        return;
+    }
+
+    message.style.display = "block"; // Exibir mensagem
+    document.getElementById("informacao").style.display = "block"; // Mostrar informações adicionais
+    passwordWarning.style.display = "none"; // Ocultar aviso de senha inicialmente
+
+    if (numerosContribuintes.includes(numero)) {
+        message.innerHTML = "O número de contribuinte que pesquisou está incluído no ficheiro que está a circular com a fuga de dados (e que contém a password, além do número de contribuinte). Leia o texto em baixo para saber o que está em causa e tomar precauções para resolver o problema e evitar novos.";
+        message.className = "error";
+        passwordWarning.style.display = "block"; // Mostrar aviso de senha
+    } else {
+        message.innerHTML = "O número de contribuinte que pesquisou não está incluído no ficheiro que está a circular. De qualquer maneira, leia o texto em baixo para tomar precauções e evitar problemas.";
+        message.className = "success";
+        passwordWarning.style.display = "none"; // Ocultar aviso de senha
+    }
+}
 
     // Capturar evento de tecla pressionada
     document.getElementById("contribuinte").addEventListener("keypress", function(event) {
