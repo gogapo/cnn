@@ -82,7 +82,7 @@
         #message {
             font-size: 18px;
             margin-top: 20px;
-            display: none;
+            display: none; /* Ocultar inicialmente */
         }
 
         .error {
@@ -124,7 +124,7 @@
     <button onclick="verificarContribuinte()">Verificar</button>
 
     <div id="message"></div>
-    <p class="password-warning">O ficheiro que está a circular inclui a password além do número de contribuinte. Este motor de busca só inclui os números de contribuinte e não expõe qualquer password.</p>
+    <p class="password-warning" style="display: none;">O ficheiro que está a circular inclui a password além do número de contribuinte. Este motor de busca só inclui os números de contribuinte e não expõe qualquer password.</p>
 
     <!-- Texto longo abaixo dos resultados -->
     <div id="informacao" style="display:none;">
@@ -198,7 +198,7 @@
         if (numero.length !== 9 || isNaN(numero)) {
             message.textContent = "Por favor, insira um número válido de 9 dígitos.";
             message.className = "error";
-            message.style.display = "block";
+            message.style.display = "block"; // Exibir mensagem de erro
             passwordWarning.style.display = "none"; // Ocultar aviso de senha
             document.getElementById("informacao").style.display = "none"; // Ocultar informações adicionais
             return;
@@ -206,6 +206,7 @@
 
         message.style.display = "block"; // Exibir mensagem
         document.getElementById("informacao").style.display = "block"; // Mostrar informações adicionais
+        passwordWarning.style.display = "none"; // Ocultar aviso de senha inicialmente
 
         if (numerosContribuintes.includes(numero)) {
             message.innerHTML = "O número de contribuinte que pesquisou está incluído no ficheiro que está a circular com a fuga de dados (e que contém a password, além do número de contribuinte). Leia o texto em baixo para saber o que está em causa e tomar precauções para resolver o problema e evitar novos.";
@@ -222,6 +223,20 @@
     document.getElementById("contribuinte").addEventListener("keypress", function(event) {
         if (event.key === "Enter") {
             verificarContribuinte();
+        }
+    });
+
+    // Capturar evento de mudança no input
+    document.getElementById("contribuinte").addEventListener("input", function() {
+        // Oculta mensagens se o campo não tiver exatamente 9 dígitos
+        if (this.value.length !== 9) {
+            document.getElementById("message").style.display = "none"; // Ocultar mensagem se o campo não tiver 9 dígitos
+            document.getElementById("informacao").style.display = "none"; // Ocultar informações adicionais
+            document.querySelector(".password-warning").style.display = "none"; // Ocultar aviso de senha
+        } else {
+            // Se exatamente 9 dígitos, pode mostrar as informações (mas só se a verificação for feita)
+            document.getElementById("message").style.display = "none"; // Ocultar mensagem
+            document.getElementById("informacao").style.display = "none"; // Ocultar informações adicionais
         }
     });
 
