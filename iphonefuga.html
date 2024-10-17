@@ -208,11 +208,11 @@
         document.getElementById("informacao").style.display = "block"; // Mostrar informações adicionais
 
         if (numerosContribuintes.includes(numero)) {
-            message.innerHTML = "O número de contribuinte que pesquisou está aparentemente incluído no ficheiro que está a circular com a fuga de dados (e que contém a password, além do número de contribuinte). Leia o texto em baixo para saber o que está em causa e tomar precauções para resolver o problema e evitar novos.";
+            message.innerHTML = "O número de contribuinte que pesquisou está incluído no ficheiro que está a circular com a fuga de dados (e que contém a password, além do número de contribuinte). Leia o texto em baixo para saber o que está em causa e tomar precauções para resolver o problema e evitar novos.";
             message.className = "error";
             passwordWarning.style.display = "block"; // Mostrar aviso de senha
         } else {
-            message.innerHTML = "O número de contribuinte que pesquisou não está aparentemente incluído no ficheiro que está a circular com a fuga de dados. De qualquer maneira, leia o texto em baixo para tomar precauções e evitar problemas.";
+            message.innerHTML = "O número de contribuinte que pesquisou não está incluído no ficheiro que está a circular com a fuga de dados. De qualquer maneira, leia o texto em baixo para tomar precauções e evitar problemas.";
             message.className = "success";
             passwordWarning.style.display = "none"; // Ocultar aviso de senha
         }
