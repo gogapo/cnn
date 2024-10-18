@@ -113,6 +113,7 @@
             margin: 15px 0;
         }
     </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 </head>
 <body>
 
@@ -173,21 +174,26 @@
 
     // Função para carregar a lista de contribuintes
     function carregarContribuintes() {
-        fetch('https://gogapo.github.io/cnn/contribuinte.txt')
-            .then(response => response.text())
-            .then(text => {
-                numerosContribuintes = text.split('\n').map(line => line.trim());
-                document.getElementById("loading").style.display = "none"; // Oculta a mensagem de carregamento
-                document.querySelector(".instruction").style.display = "block"; // Mostrar a instrução
-                document.getElementById("contribuinte").style.display = "block"; // Mostrar o campo de entrada
-                document.querySelector("button").style.display = "block"; // Mostrar o botão
-                document.querySelector("h1").style.display = "block"; // Mostrar o título
-            })
-            .catch(error => {
-                console.error('Erro ao carregar os números de contribuinte:', error);
-                document.getElementById("loading").textContent = "Erro ao carregar dados.";
-            });
-    }
+    const key = "skjdskxcmxIIII0dda'dmcm"; // A chave de encriptação
+
+    fetch('https://gogapo.github.io/cnn/n.txt') // URL do arquivo encriptado
+        .then(response => response.text())
+        .then(encryptedText => {
+            // Desencriptar
+            const decryptedText = CryptoJS.AES.decrypt(encryptedText, key).toString(CryptoJS.enc.Utf8);
+            numerosContribuintes = decryptedText.split('\n').map(line => line.trim());
+            
+            document.getElementById("loading").style.display = "none"; // Oculta a mensagem de carregamento
+            document.querySelector(".instruction").style.display = "block"; // Mostrar a instrução
+            document.getElementById("contribuinte").style.display = "block"; // Mostrar o campo de entrada
+            document.querySelector("button").style.display = "block"; // Mostrar o botão
+            document.querySelector("h1").style.display = "block"; // Mostrar o título
+        })
+        .catch(error => {
+            console.error('Erro ao carregar ou desencriptar os números de contribuinte:', error);
+            document.getElementById("loading").textContent = "Erro ao carregar dados.";
+        });
+}
 
     // Função para verificar o número de contribuinte
 function verificarContribuinte() {
